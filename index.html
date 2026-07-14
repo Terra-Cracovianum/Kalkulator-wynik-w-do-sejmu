@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<title>Kalkulator Sejmowy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light dark;
+
+    /* Surfaces */
+    --bg: #f2f2f7;
+    --bg-grad-1: #eef1f8;
+    --bg-grad-2: #f6f4fb;
+    --card: rgba(255, 255, 255, 0.72);
+    --card-solid: #ffffff;
+    --card-border: rgba(255, 255, 255, 0.6);
+    --hairline: rgba(60, 60, 67, 0.12);
+
+    /* Text */
+    --text: #1d1d1f;
+    --text-secondary: rgba(60, 60, 67, 0.6);
+    --text-tertiary: rgba(60, 60, 67, 0.3);
+
+    /* Accents (Apple system colours) */
+    --accent: #0a84ff;
+    --accent-2: #5e5ce6;
+    --accent-light: rgba(10, 132, 255, 0.12);
+    --danger: #ff3b30;
+    --danger-light: rgba(255, 59, 48, 0.12);
+    --success: #34c759;
+
+    --fill: rgba(118, 118, 128, 0.12);
+    --fill-strong: rgba(118, 118, 128, 0.2);
+
+    --radius: 22px;
+    --radius-sm: 14px;
+    --shadow: 0 10px 30px -12px rgba(28, 28, 40, 0.22), 0 2px 8px -2px rgba(28, 28, 40, 0.08);
+    --shadow-soft: 0 1px 2px rgba(0,0,0,0.04);
+
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-top: env(safe-area-inset-top, 0px);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #000000;
+      --bg-grad-1: #0a0a12;
+      --bg-grad-2: #14101f;
+      --card: rgba(28, 28, 30, 0.66);
+      --card-solid: #1c1c1e;
+      --card-border: rgba(255, 255, 255, 0.08);
+      --hairline: rgba(84, 84, 88, 0.4);
+
+      --text: #f5f5f7;
+      --text-secondary: rgba(235, 235, 245, 0.6);
+      --text-tertiary: rgba(235, 235, 245, 0.3);
+
+      --accent: #0a84ff;
+      --accent-2: #7d7aff;
+      --accent-light: rgba(10, 132, 255, 0.22);
+      --danger: #ff453a;
+      --danger-light: rgba(255, 69, 58, 0.18);
+      --success: #32d74b;
+
+      --fill: rgba(118, 118, 128, 0.24);
+      --fill-strong: rgba(118, 118, 128, 0.36);
+
+      --shadow: 0 14px 40px -14px rgba(0, 0, 0, 0.7);
+      --shadow-soft: 0 1px 2px rgba(0,0,0,0.3);
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Ambient gradient mesh background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: -20%;
+    z-index: -1;
+    background:
+      radial-gradient(40% 35% at 15% 8%, rgba(94, 92, 230, 0.22), transparent 70%),
+      radial-gradient(45% 40% at 92% 12%, rgba(10, 132, 255, 0.20), transparent 70%),
+      radial-gradient(50% 45% at 80% 95%, rgba(52, 199, 89, 0.12), transparent 70%),
+      radial-gradient(45% 45% at 5% 90%, rgba(255, 59, 48, 0.10), transparent 70%),
+      linear-gradient(180deg, var(--bg-grad-1), var(--bg-grad-2));
+    background-attachment: fixed;
+    animation: drift 22s ease-in-out infinite alternate;
+  }
+
+  @keyframes drift {
+    0%   { transform: translate3d(0,0,0) scale(1); }
+    100% { transform: translate3d(0,-2%,0) scale(1.06); }
+  }
+
+  .container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: calc(var(--safe-top) + 8px) 16px 0;
+    padding-bottom: 180px;
+  }
+
+  /* ---------- Hero header ---------- */
+  header {
+    text-align: center;
+    padding: 36px 0 26px;
+  }
+
+  header h1 {
+    font-size: clamp(34px, 11vw, 46px);
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  header p {
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--text-secondary);
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  /* ---------- Section labels ---------- */
+  .section-label {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text-secondary);
+    margin: 0 0 12px 6px;
+  }
+
+  /* ---------- Party cards ---------- */
+  .party-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .party-card {
+    position: relative;
+    background: var(--card);
+    -webkit-backdrop-filter: saturate(180%) blur(30px);
+    backdrop-filter: saturate(180%) blur(30px);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 14px 14px 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: var(--shadow);
+    transition: transform 0.45s cubic-bezier(0.22,1,0.36,1),
+                opacity 0.45s cubic-bezier(0.22,1,0.36,1),
+                filter 0.3s ease;
+    animation: cardIn 0.55s cubic-bezier(0.22,1,0.36,1) both;
+    transform-origin: center;
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .party-card.below-threshold {
+    opacity: 0.5;
+    filter: saturate(0.6);
+  }
+
+  /* Coloured spine on the left edge */
+  .party-color {
+    width: 5px;
+    align-self: stretch;
+    min-height: 46px;
+    border-radius: 100px;
+    flex-shrink: 0;
+    box-shadow: 0 0 14px -2px currentColor;
+  }
+
+  .party-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .party-top-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .party-name {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    background: none;
+    border: none;
+    color: var(--text);
+    padding: 2px 0;
+    width: 100%;
+    min-width: 0;
+    outline: none;
+    font-family: inherit;
+    border-bottom: 1.5px solid transparent;
+    transition: border-color 0.2s;
+  }
+  .party-name:focus { border-bottom-color: var(--accent); }
+
+  /* Coalition toggle pill */
+  .coalition-badge {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    padding: 6px 11px;
+    border-radius: 100px;
+    background: var(--fill);
+    color: var(--text-secondary);
+    cursor: pointer;
+    white-space: nowrap;
+    user-select: none;
+    flex-shrink: 0;
+    transition: background 0.25s, color 0.25s, transform 0.15s;
+  }
+  .coalition-badge:active { transform: scale(0.92); }
+  .coalition-badge.active {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #fff;
+    box-shadow: 0 4px 12px -2px var(--accent-light);
+  }
+
+  .party-bottom-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .threshold-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    white-space: nowrap;
+  }
+
+  .pct-input-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 1px;
+    margin-left: auto;
+    background: var(--fill);
+    padding: 4px 12px;
+    border-radius: 12px;
+    transition: box-shadow 0.2s, background 0.2s;
+  }
+  .pct-input-wrap:focus-within {
+    background: var(--accent-light);
+    box-shadow: inset 0 0 0 1.5px var(--accent);
+  }
+
+  .pct-input {
+    width: 46px;
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    font-family: inherit;
+    text-align: right;
+    border: none;
+    background: none;
+    color: var(--text);
+    outline: none;
+    padding: 0;
+    -moz-appearance: textfield;
+    font-variant-numeric: tabular-nums;
+  }
+  .pct-input::-webkit-inner-spin-button,
+  .pct-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .pct-input:focus { color: var(--accent); }
+
+  .pct-symbol {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .remove-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: var(--fill);
+    color: var(--text-secondary);
+    font-size: 17px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s, color 0.2s, transform 0.15s;
+  }
+  .remove-btn:active { transform: scale(0.85); }
+  .remove-btn:hover { background: var(--danger); color: #fff; }
+
+  /* ---------- Add button ---------- */
+  .add-btn {
+    width: 100%;
+    padding: 16px;
+    border: 1.5px dashed var(--hairline);
+    border-radius: var(--radius);
+    background: var(--card);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    color: var(--accent);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .add-btn:active { transform: scale(0.985); }
+  .add-btn:hover { border-color: var(--accent); background: var(--accent-light); }
+  .add-btn svg { width: 18px; height: 18px; }
+
+  /* ---------- Sticky bottom action bar ---------- */
+  .action-dock {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 50;
+    padding: 14px 16px calc(14px + var(--safe-bottom));
+    background: linear-gradient(180deg, transparent, var(--bg) 42%);
+    pointer-events: none;
+  }
+  .action-dock-inner {
+    max-width: 500px;
+    margin: 0 auto;
+    background: var(--card);
+    -webkit-backdrop-filter: saturate(180%) blur(30px);
+    backdrop-filter: saturate(180%) blur(30px);
+    border: 1px solid var(--card-border);
+    border-radius: 26px;
+    box-shadow: var(--shadow);
+    padding: 12px;
+    pointer-events: auto;
+  }
+
+  .total-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 10px 12px;
+  }
+  .total-bar .label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+  .total-bar .value {
+    font-weight: 700;
+    font-size: 19px;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    transition: color 0.25s;
+  }
+  .total-bar .value.over { color: var(--danger); }
+
+  .show-results-btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #fff;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 8px 20px -6px var(--accent-light);
+    transition: transform 0.18s cubic-bezier(0.22,1,0.36,1), filter 0.2s, opacity 0.2s;
+  }
+  .show-results-btn:active { transform: scale(0.97); }
+  .show-results-btn:disabled {
+    background: var(--fill-strong);
+    color: var(--text-tertiary);
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  /* ---------- Results ---------- */
+  .results-section {
+    margin-top: 30px;
+    animation: cardIn 0.6s cubic-bezier(0.22,1,0.36,1) both;
+  }
+
+  .results-card {
+    background: var(--card);
+    -webkit-backdrop-filter: saturate(180%) blur(30px);
+    backdrop-filter: saturate(180%) blur(30px);
+    border: 1px solid var(--card-border);
+    border-radius: 26px;
+    box-shadow: var(--shadow);
+    padding: 20px 18px;
+  }
+
+  .results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+    padding: 0 2px;
+  }
+  .results-header .section-label { margin: 0; }
+  .results-header .total-seats {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hemicycle-wrap {
+    margin: 10px 0 22px;
+    text-align: center;
+  }
+  .hemicycle-wrap svg { width: 100%; max-width: 380px; height: auto; }
+
+  .result-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+    padding: 6px 8px;
+    border-radius: 14px;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: inset 0 0 0 0 transparent;
+    transition: background 0.22s, opacity 0.22s, box-shadow 0.22s, transform 0.12s;
+  }
+  .result-row:last-child { margin-bottom: 0; }
+  .result-row:active { transform: scale(0.99); }
+  .result-row.selected {
+    background: var(--accent-light);
+    box-shadow: inset 0 0 0 1.5px var(--accent);
+  }
+  .result-row.selected .result-name { color: var(--accent); }
+  .result-row.dimmed { opacity: 0.45; }
+
+  /* Coalition builder */
+  .coalition-hint {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    text-align: center;
+    margin: 2px 0 14px;
+  }
+  .coalition-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 13px 16px;
+    border-radius: 16px;
+    margin: 0 0 16px;
+    background: var(--fill);
+    box-shadow: inset 0 0 0 0 transparent;
+    transition: background 0.3s, box-shadow 0.3s;
+    animation: cardIn 0.35s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  .coalition-status .cs-left { display: flex; align-items: baseline; gap: 6px; }
+  .coalition-status .cs-count {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    transition: color 0.3s;
+  }
+  .coalition-status .cs-sep { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+  .coalition-status .cs-msg { font-size: 13px; font-weight: 700; text-align: right; color: var(--text-secondary); }
+  .coalition-status.reached {
+    background: rgba(52,199,89,0.14);
+    box-shadow: inset 0 0 0 1.5px rgba(52,199,89,0.4);
+  }
+  .coalition-status.reached .cs-count,
+  .coalition-status.reached .cs-msg { color: var(--success); }
+
+  .result-name {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    width: 78px;
+    flex-shrink: 0;
+    line-height: 1.2;
+    /* wrap only between whole words, never mid-word */
+    word-break: normal;
+    overflow-wrap: normal;
+    hyphens: none;
+  }
+
+  .result-bar-wrap {
+    flex: 1;
+    height: 32px;
+    background: var(--fill);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+  }
+  .result-bar {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.7s cubic-bezier(0.22,1,0.36,1);
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+  /* subtle sheen on bars */
+  .result-bar::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0) 55%);
+    pointer-events: none;
+  }
+  .result-bar-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.25);
+    position: relative;
+    z-index: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .result-seats {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    width: 40px;
+    text-align: right;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .result-pct {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    width: 40px;
+    text-align: right;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .below-threshold-note {
+    text-align: center;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    margin-top: 18px;
+    padding: 14px 16px;
+    background: var(--fill);
+    border-radius: var(--radius-sm);
+  }
+
+  .method-note {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    margin-top: 26px;
+    line-height: 1.6;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, body::before { animation: none !important; }
+    .result-bar, .party-card, .show-results-btn { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Kalkulator<br>Sejmowy</h1>
+    <p>Wpisz poparcie w procentach i zobacz prognozowany podział mandatów w Sejmie.</p>
+  </header>
+
+  <div class="section-label">Partie i koalicje</div>
+  <div class="party-list" id="partyList"></div>
+  <button class="add-btn" id="addPartyBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    Dodaj partię
+  </button>
+
+  <div class="results-section" id="resultsSection" style="display:none">
+    <div class="results-card">
+      <div class="results-header">
+        <div class="section-label">Wyniki</div>
+        <div class="total-seats" id="totalSeats">460 mandatów</div>
+      </div>
+      <div class="hemicycle-wrap" id="hemicycle"></div>
+      <div class="coalition-status" id="coalitionStatus" style="display:none"></div>
+      <div class="coalition-hint" id="coalitionHint">Dotknij partie, aby zbudować koalicję</div>
+      <div id="resultsChart"></div>
+      <div class="below-threshold-note" id="belowNote" style="display:none"></div>
+    </div>
+  </div>
+
+  <div class="method-note">
+    Metoda D'Hondta · Próg 5% (partie) / 8% (koalicje)
+  </div>
+</div>
+
+<!-- Sticky action dock -->
+<div class="action-dock">
+  <div class="action-dock-inner">
+    <div class="total-bar">
+      <span class="label">Suma poparcia</span>
+      <span class="value" id="totalPct">0%</span>
+    </div>
+    <button class="show-results-btn" id="showResultsBtn">Pokaż wyniki</button>
+  </div>
+</div>
+
+<script>
+const TOTAL_SEATS = 460;
+const PARTY_THRESHOLD = 5;
+const COALITION_THRESHOLD = 8;
+const MAJORITY = Math.floor(TOTAL_SEATS / 2) + 1; // 231
+
+// Interactive coalition builder state (set of party names tapped in results).
+let coalition = new Set();
+let lastSorted = [];
+let lastSeats = new Map();
+
+const PARTY_COLORS = {
+  'PiS': '#263672',
+  'Koalicja Obywatelska': '#F58220',
+  'Konfederacja': '#1B1464',
+  'Konfederacja Korony Polskiej': '#8B6914',
+  'Lewica': '#E53935',
+  'Razem': '#7B1FA2',
+  'PSL': '#4CAF50',
+  'Trzecia Droga': '#2E7D32',
+  'Centrum': '#00838F',
+};
+
+const SHORT_NAMES = {
+  'Koalicja Obywatelska': 'KO',
+  'Konfederacja': 'Konfa',
+  'Konfederacja Korony Polskiej': 'KKP',
+  'Trzecia Droga': 'TD',
+};
+
+function shortName(name) {
+  return SHORT_NAMES[name] || name;
+}
+
+const DEFAULT_COLORS = [
+  '#8B5CF6', '#EC4899', '#14B8A6', '#F59E0B',
+  '#6366F1', '#84CC16', '#06B6D4', '#EF4444',
+];
+
+let colorIndex = 0;
+
+function getColor(name) {
+  if (PARTY_COLORS[name]) return PARTY_COLORS[name];
+  return DEFAULT_COLORS[colorIndex++ % DEFAULT_COLORS.length];
+}
+
+let parties = [
+  { name: 'PiS', pct: 30, coalition: false, color: PARTY_COLORS['PiS'] },
+  { name: 'Koalicja Obywatelska', pct: 25, coalition: false, color: PARTY_COLORS['Koalicja Obywatelska'] },
+  { name: 'Konfederacja', pct: 12, coalition: false, color: PARTY_COLORS['Konfederacja'] },
+  { name: 'Konfederacja Korony Polskiej', pct: 3, coalition: false, color: PARTY_COLORS['Konfederacja Korony Polskiej'] },
+  { name: 'Lewica', pct: 6, coalition: false, color: PARTY_COLORS['Lewica'] },
+  { name: 'Razem', pct: 3, coalition: false, color: PARTY_COLORS['Razem'] },
+  { name: 'PSL', pct: 4, coalition: false, color: PARTY_COLORS['PSL'] },
+  { name: 'Trzecia Droga', pct: 5, coalition: true, color: PARTY_COLORS['Trzecia Droga'] },
+  { name: 'Centrum', pct: 2, coalition: false, color: PARTY_COLORS['Centrum'] },
+];
+
+function dhondt(validParties, totalSeats) {
+  const seats = new Map();
+  validParties.forEach(p => seats.set(p.name, 0));
+
+  for (let i = 0; i < totalSeats; i++) {
+    let maxQuotient = -1;
+    let winner = null;
+    for (const p of validParties) {
+      const quotient = p.pct / (seats.get(p.name) + 1);
+      if (quotient > maxQuotient) {
+        maxQuotient = quotient;
+        winner = p.name;
+      }
+    }
+    if (winner) seats.set(winner, seats.get(winner) + 1);
+  }
+
+  return seats;
+}
+
+function renderHemicycle(sorted) {
+  const container = document.getElementById('hemicycle');
+  const majority = MAJORITY;
+
+  if (sorted.length === 0) { container.innerHTML = ''; return; }
+
+  const totalSeats = sorted.reduce((s, [, v]) => s + v, 0);
+  if (totalSeats === 0) { container.innerHTML = ''; return; }
+
+  const W = 400, H = 215;
+  const cx = W / 2, cy = H - 5;
+  const outerR = 195, innerR = 95, gap = 0.008;
+
+  let svg = `<svg viewBox="0 -22 ${W} ${H + 22}" xmlns="http://www.w3.org/2000/svg">`;
+
+  let currentAngle = Math.PI;
+
+  for (const [name, seats] of sorted) {
+    if (seats === 0) continue;
+    const party = parties.find(p => p.name === name);
+    const color = party?.color || '#888';
+    const sweep = (seats / totalSeats) * Math.PI;
+
+    const a1 = currentAngle - gap;
+    const a2 = currentAngle - sweep + gap;
+
+    if (a1 <= a2) { currentAngle -= sweep; continue; }
+
+    const ox1 = cx + outerR * Math.cos(a1);
+    const oy1 = cy - outerR * Math.sin(a1);
+    const ox2 = cx + outerR * Math.cos(a2);
+    const oy2 = cy - outerR * Math.sin(a2);
+    const ix1 = cx + innerR * Math.cos(a2);
+    const iy1 = cy - innerR * Math.sin(a2);
+    const ix2 = cx + innerR * Math.cos(a1);
+    const iy2 = cy - innerR * Math.sin(a1);
+
+    const large = sweep - 2 * gap > Math.PI ? 1 : 0;
+
+    const d = [
+      `M ${ox1} ${oy1}`,
+      `A ${outerR} ${outerR} 0 ${large} 1 ${ox2} ${oy2}`,
+      `L ${ix1} ${iy1}`,
+      `A ${innerR} ${innerR} 0 ${large} 0 ${ix2} ${iy2}`,
+      'Z'
+    ].join(' ');
+
+    const op = coalition.size === 0 || coalition.has(name) ? 1 : 0.28;
+    svg += `<path d="${d}" fill="${color}" fill-opacity="${op}" style="transition:fill-opacity .3s"/>`;
+
+    currentAngle -= sweep;
+  }
+
+  // Majority threshold marker — the line splitting the hemicycle at 231 of 460.
+  const majAngle = Math.PI - (majority / totalSeats) * Math.PI;
+  const mx1 = cx + (innerR - 8) * Math.cos(majAngle);
+  const my1 = cy - (innerR - 8) * Math.sin(majAngle);
+  const mx2 = cx + (outerR + 8) * Math.cos(majAngle);
+  const my2 = cy - (outerR + 8) * Math.sin(majAngle);
+  svg += `<line x1="${mx1}" y1="${my1}" x2="${mx2}" y2="${my2}"
+    stroke="var(--text)" stroke-width="2.2" stroke-dasharray="5,4" stroke-linecap="round" opacity="0.55"/>`;
+  const lx = cx + (outerR + 22) * Math.cos(majAngle);
+  const ly = cy - (outerR + 22) * Math.sin(majAngle);
+  svg += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle"
+    fill="var(--text-secondary)" font-family="-apple-system,Inter,sans-serif" font-size="10.5" font-weight="700">większość ${majority}</text>`;
+
+  svg += `<text x="${cx}" y="${cy - 6}" text-anchor="middle" dominant-baseline="auto"
+    fill="var(--text)" font-family="-apple-system,Inter,sans-serif" font-size="17" font-weight="800" letter-spacing="-0.5">${totalSeats}</text>`;
+  svg += `<text x="${cx}" y="${cy + 8}" text-anchor="middle" dominant-baseline="auto"
+    fill="var(--text-secondary)" font-family="-apple-system,Inter,sans-serif" font-size="9" font-weight="600">mandatów</text>`;
+
+  svg += '</svg>';
+  container.innerHTML = svg;
+}
+
+const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Smoothly counts an element's text from `start` to `end`, formatting each frame.
+function animateCount(el, start, end, format, duration = 900) {
+  if (!el) return;
+  if (REDUCED_MOTION || start === end) { el.textContent = format(end); return; }
+
+  const t0 = performance.now();
+  const easeOut = t => 1 - Math.pow(1 - t, 3);
+
+  function frame(now) {
+    const t = Math.min((now - t0) / duration, 1);
+    const val = Math.round(start + (end - start) * easeOut(t));
+    el.textContent = format(val);
+    if (t < 1) requestAnimationFrame(frame);
+    else el.textContent = format(end);
+  }
+  requestAnimationFrame(frame);
+}
+
+function hideResults() {
+  document.getElementById('resultsSection').style.display = 'none';
+  document.getElementById('showResultsBtn').style.display = '';
+}
+
+function updateTotal() {
+  const total = parties.reduce((s, p) => s + p.pct, 0);
+  const totalEl = document.getElementById('totalPct');
+  totalEl.textContent = total.toFixed(1) + '%';
+  totalEl.classList.toggle('over', total > 100);
+
+  const btn = document.getElementById('showResultsBtn');
+  if (total > 100) {
+    btn.disabled = true;
+    btn.textContent = 'Suma przekracza 100%';
+  } else {
+    btn.disabled = false;
+    btn.textContent = 'Pokaż wyniki';
+  }
+
+  parties.forEach((p, i) => {
+    const card = document.querySelectorAll('.party-card')[i];
+    if (card) {
+      const threshold = p.coalition ? COALITION_THRESHOLD : PARTY_THRESHOLD;
+      card.classList.toggle('below-threshold', p.pct > 0 && p.pct < threshold);
+    }
+  });
+}
+
+function showResults() {
+  const total = parties.reduce((s, p) => s + p.pct, 0);
+  if (total > 100) return;
+
+  const validParties = parties.filter(p => {
+    const threshold = p.coalition ? COALITION_THRESHOLD : PARTY_THRESHOLD;
+    return p.pct >= threshold;
+  });
+
+  const belowParties = parties.filter(p => {
+    const threshold = p.coalition ? COALITION_THRESHOLD : PARTY_THRESHOLD;
+    return p.pct > 0 && p.pct < threshold;
+  });
+
+  const seats = validParties.length > 0 ? dhondt(validParties, TOTAL_SEATS) : new Map();
+  const assignedSeats = Array.from(seats.values()).reduce((a, b) => a + b, 0);
+
+  const sorted = [...seats.entries()].sort((a, b) => b[1] - a[1]);
+
+  // Reset the coalition builder for this fresh result set.
+  coalition = new Set();
+  lastSorted = sorted;
+  lastSeats = seats;
+
+  renderHemicycle(sorted);
+
+  const chart = document.getElementById('resultsChart');
+  chart.innerHTML = '';
+
+  const maxSeats = Math.max(...Array.from(seats.values()), 1);
+  const animatedEls = [];
+
+  for (const [name, s] of sorted) {
+    const party = parties.find(p => p.name === name);
+    const pctOfTotal = validParties.length > 0
+      ? ((s / TOTAL_SEATS) * 100).toFixed(1)
+      : '0.0';
+
+    const row = document.createElement('div');
+    row.className = 'result-row';
+    row.dataset.name = name;
+    row.setAttribute('role', 'button');
+    row.setAttribute('aria-pressed', 'false');
+    row.title = 'Dotknij, aby dodać do koalicji';
+
+    const barWidth = maxSeats > 0 ? (s / maxSeats) * 100 : 0;
+    const sn = shortName(name);
+
+    row.innerHTML = `
+      <div class="result-name">${sn}</div>
+      <div class="result-bar-wrap">
+        <div class="result-bar" style="width:0%;background:${party?.color || '#888'}">
+          ${s > 15 ? `<span class="result-bar-label">0</span>` : ''}
+        </div>
+      </div>
+      <div class="result-seats">0</div>
+      <div class="result-pct">${pctOfTotal}%</div>
+    `;
+    row.addEventListener('click', () => toggleCoalition(name));
+    chart.appendChild(row);
+
+    const bar = row.querySelector('.result-bar');
+    const seatEl = row.querySelector('.result-seats');
+    const labelEl = row.querySelector('.result-bar-label');
+    animatedEls.push({ bar, seatEl, labelEl, target: s, barWidth });
+  }
+
+  // Animate the totalSeats header counter + each row's bar fill and seat count.
+  const totalSeatsEl = document.getElementById('totalSeats');
+  animateCount(totalSeatsEl, 0, assignedSeats, v => v + ' / ' + TOTAL_SEATS + ' mandatów');
+  requestAnimationFrame(() => {
+    animatedEls.forEach(({ bar, seatEl, labelEl, target, barWidth }) => {
+      bar.style.width = barWidth + '%';
+      animateCount(seatEl, 0, target, v => '' + v);
+      if (labelEl) animateCount(labelEl, 0, target, v => '' + v);
+    });
+  });
+
+  const belowNote = document.getElementById('belowNote');
+  if (belowParties.length > 0) {
+    const names = belowParties.map(p => {
+      const t = p.coalition ? COALITION_THRESHOLD : PARTY_THRESHOLD;
+      return `${shortName(p.name)} (${p.pct}% < ${t}%)`;
+    }).join(', ');
+    belowNote.style.display = 'block';
+    belowNote.textContent = 'Poniżej progu: ' + names;
+  } else {
+    belowNote.style.display = 'none';
+  }
+
+  updateCoalition();
+
+  document.getElementById('resultsSection').style.display = '';
+  document.getElementById('showResultsBtn').style.display = 'none';
+  document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function toggleCoalition(name) {
+  if (coalition.has(name)) coalition.delete(name);
+  else coalition.add(name);
+  renderHemicycle(lastSorted);
+  updateCoalition();
+}
+
+function updateCoalition() {
+  const statusEl = document.getElementById('coalitionStatus');
+  const hintEl = document.getElementById('coalitionHint');
+
+  // Reflect selection on each row.
+  document.querySelectorAll('.result-row').forEach(row => {
+    const sel = coalition.has(row.dataset.name);
+    row.classList.toggle('selected', sel);
+    row.classList.toggle('dimmed', coalition.size > 0 && !sel);
+    row.setAttribute('aria-pressed', sel ? 'true' : 'false');
+  });
+
+  if (coalition.size === 0) {
+    const hasRows = document.querySelectorAll('.result-row').length > 0;
+    statusEl.style.display = 'none';
+    hintEl.style.display = hasRows ? '' : 'none';
+    return;
+  }
+
+  let sum = 0;
+  coalition.forEach(n => { sum += (lastSeats.get(n) || 0); });
+  const reached = sum >= MAJORITY;
+  const diff = Math.abs(sum - MAJORITY);
+
+  let msg;
+  if (reached) {
+    msg = sum === MAJORITY ? '✓ Większość osiągnięta' : `✓ Większość +${diff}`;
+  } else {
+    msg = `Brakuje ${diff} mandatów`;
+  }
+
+  statusEl.className = 'coalition-status' + (reached ? ' reached' : '');
+  statusEl.innerHTML = `
+    <div class="cs-left">
+      <span class="cs-count">${sum}</span>
+      <span class="cs-sep">/ ${MAJORITY} do większości</span>
+    </div>
+    <div class="cs-msg">${msg}</div>
+  `;
+  statusEl.style.display = '';
+  hintEl.style.display = 'none';
+}
+
+function render() {
+  const list = document.getElementById('partyList');
+  list.innerHTML = '';
+
+  parties.forEach((party, i) => {
+    const card = document.createElement('div');
+    card.className = 'party-card';
+    card.style.animationDelay = (i * 0.04) + 's';
+
+    const threshold = party.coalition ? COALITION_THRESHOLD : PARTY_THRESHOLD;
+    if (party.pct > 0 && party.pct < threshold) {
+      card.classList.add('below-threshold');
+    }
+
+    card.innerHTML = `
+      <div class="party-color" style="background:${party.color};color:${party.color}"></div>
+      <div class="party-info">
+        <div class="party-top-row">
+          <input class="party-name" type="text" value="${party.name}" data-idx="${i}" />
+          <div class="coalition-badge ${party.coalition ? 'active' : ''}" data-idx="${i}" title="Koalicja = próg 8%">
+            ${party.coalition ? 'Koalicja' : 'Partia'}
+          </div>
+        </div>
+        <div class="party-bottom-row">
+          <span class="threshold-label">próg ${threshold}%</span>
+          <div class="pct-input-wrap">
+            <input class="pct-input" type="number" inputmode="decimal" min="0" max="100" step="0.1" value="${party.pct}" data-idx="${i}" />
+            <span class="pct-symbol">%</span>
+          </div>
+        </div>
+      </div>
+      <button class="remove-btn" data-idx="${i}" title="Usuń">&times;</button>
+    `;
+
+    list.appendChild(card);
+  });
+
+  list.querySelectorAll('.pct-input').forEach(input => {
+    input.addEventListener('input', (e) => {
+      const idx = parseInt(e.target.dataset.idx);
+      const val = parseFloat(e.target.value) || 0;
+      parties[idx].pct = Math.min(100, Math.max(0, val));
+      hideResults();
+      updateTotal();
+    });
+
+    input.addEventListener('focus', (e) => {
+      e.target.select();
+    });
+  });
+
+  list.querySelectorAll('.party-name').forEach(input => {
+    input.addEventListener('change', (e) => {
+      const idx = parseInt(e.target.dataset.idx);
+      parties[idx].name = e.target.value.trim() || 'Partia';
+      hideResults();
+    });
+  });
+
+  list.querySelectorAll('.coalition-badge').forEach(badge => {
+    badge.addEventListener('click', (e) => {
+      const idx = parseInt(e.target.dataset.idx);
+      parties[idx].coalition = !parties[idx].coalition;
+      hideResults();
+      render();
+    });
+  });
+
+  list.querySelectorAll('.remove-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const idx = parseInt(e.target.dataset.idx);
+      parties.splice(idx, 1);
+      hideResults();
+      render();
+    });
+  });
+
+  updateTotal();
+}
+
+document.getElementById('showResultsBtn').addEventListener('click', () => {
+  showResults();
+});
+
+document.getElementById('addPartyBtn').addEventListener('click', () => {
+  const newColor = getColor('');
+  parties.push({ name: 'Nowa partia', pct: 0, coalition: false, color: newColor });
+  hideResults();
+  render();
+  const inputs = document.querySelectorAll('.party-name');
+  const last = inputs[inputs.length - 1];
+  if (last) { last.focus(); last.select(); }
+});
+
+render();
+</script>
+</body>
+</html>
