@@ -220,16 +220,13 @@
   }
   .contour-sheet {
     position: absolute;
-    inset: 0 0 0 auto;
-    width: min(100%, 980px);
-    height: 100%;
+    inset: 0;
     pointer-events: none;
-    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 55%);
-            mask-image: linear-gradient(90deg, transparent 0%, #000 55%);
     opacity: 0;
     transition: opacity 1.1s var(--arrive);
   }
   .contour-sheet.ready { opacity: 1; }
+  @media (max-width: 899px) { .contour-sheet.ready { opacity: .8; } }
   .contour-sheet canvas { width: 100%; height: 100%; display: block; }
 
   .station {
@@ -260,9 +257,12 @@
     white-space: nowrap;
     color: var(--text-2);
     font-size: 10px;
+    background: var(--paper);
+    padding: 2px 6px;
+    margin-top: -2px;
   }
   @media (max-width: 620px) {
-    .station span { left: auto; right: 16px; }
+    .station span { display: none; }
   }
 
   .hero-inner { position: relative; z-index: 1; }
@@ -313,7 +313,7 @@
   .readout {
     display: grid;
     grid-template-columns: auto 1fr;
-    column-gap: 20px;
+    column-gap: 0;
     row-gap: 0;
     align-self: end;
     max-width: 360px;
@@ -322,11 +322,10 @@
     padding: 9px 0;
     border-top: 1px solid var(--line);
   }
-  .readout dt { color: var(--text-2); }
+  .readout dt { color: var(--text-2); padding-right: 20px; }
   .readout dd { color: var(--text); text-align: right; }
   @media (min-width: 900px) {
-    .hero-foot { grid-template-columns: 1fr auto; align-items: end; }
-    .readout { min-width: 340px; }
+    .hero-foot { max-width: 440px; }
   }
 
   /* ---------- Section head (1 : 3 split) ---------- */
@@ -348,10 +347,12 @@
     font-variation-settings: 'opsz' 144;
   }
   .sect-title i { font-style: italic; color: var(--em); }
+  .sect-note span { white-space: nowrap; }
   .sect-note {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
-    gap: 16px;
+    gap: 6px 16px;
     padding-top: 12px;
     border-top: 1px solid var(--line);
     color: var(--text-2);
@@ -512,7 +513,9 @@
   }
 
   .chamber svg { width: 100%; height: auto; display: block; overflow: visible; }
-  .chamber circle.seat { animation: seatIn .6s var(--arrive) both; transition: opacity .3s var(--arrive); }
+  .chamber circle { transition: opacity .3s var(--arrive); }
+  .chamber circle.seat { animation: seatIn .6s var(--arrive) both; }
+  #gaugePen { transition: stroke-dashoffset .7s var(--arrive), stroke .3s var(--arrive); }
   @keyframes seatIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
   .coalition-box {
@@ -773,7 +776,7 @@
       <div class="sect-head">
         <div class="kicker mono"><span class="diamond"></span>02 — Ugrupowania</div>
         <h2 class="sect-title" id="partiesTitle">Partie i <i>koalicje</i></h2>
-        <div class="sect-note mono"><span id="partyCount">Rejestr</span><span>Poparcie w %</span></div>
+        <div class="sect-note mono"><span id="partyCount">Rejestr</span><span>Sondaże · X 2026</span></div>
       </div>
       <div class="register-col">
         <div class="register" id="partyList"></div>
@@ -857,6 +860,8 @@ const PARTY_COLORS = {
   'Lewica': '#E53935',
   'Razem': '#7B1FA2',
   'PSL': '#4CAF50',
+  'Polska 2050': '#E5B800',
+  'Rozwój Plus': '#4F7FB8',
   'Trzecia Droga': '#2E7D32',
   'Centrum': '#00838F',
 };
@@ -866,6 +871,7 @@ const SHORT_NAMES = {
   'Konfederacja': 'Konfa',
   'Konfederacja Korony Polskiej': 'KKP',
   'Trzecia Droga': 'TD',
+  'Polska 2050': 'PL2050',
 };
 
 function shortName(name) {
@@ -884,16 +890,18 @@ function getColor(name) {
   return DEFAULT_COLORS[colorIndex++ % DEFAULT_COLORS.length];
 }
 
+// Starting values: average of October 2026 polls (Opinia24, CBOS, United Surveys,
+// IBRiS, Pollster, OGB, Social Changes), rounded to 0.1. Every value is editable.
 let parties = [
-  { name: 'PiS', pct: 30, coalition: false, color: PARTY_COLORS['PiS'] },
-  { name: 'Koalicja Obywatelska', pct: 25, coalition: false, color: PARTY_COLORS['Koalicja Obywatelska'] },
-  { name: 'Konfederacja', pct: 12, coalition: false, color: PARTY_COLORS['Konfederacja'] },
-  { name: 'Konfederacja Korony Polskiej', pct: 3, coalition: false, color: PARTY_COLORS['Konfederacja Korony Polskiej'] },
-  { name: 'Lewica', pct: 6, coalition: false, color: PARTY_COLORS['Lewica'] },
-  { name: 'Razem', pct: 3, coalition: false, color: PARTY_COLORS['Razem'] },
-  { name: 'PSL', pct: 4, coalition: false, color: PARTY_COLORS['PSL'] },
-  { name: 'Trzecia Droga', pct: 5, coalition: true, color: PARTY_COLORS['Trzecia Droga'] },
-  { name: 'Centrum', pct: 2, coalition: false, color: PARTY_COLORS['Centrum'] },
+  { name: 'Koalicja Obywatelska', pct: 31.5, coalition: false, color: PARTY_COLORS['Koalicja Obywatelska'] },
+  { name: 'PiS', pct: 19.5, coalition: false, color: PARTY_COLORS['PiS'] },
+  { name: 'Konfederacja', pct: 13, coalition: false, color: PARTY_COLORS['Konfederacja'] },
+  { name: 'Konfederacja Korony Polskiej', pct: 8.7, coalition: false, color: PARTY_COLORS['Konfederacja Korony Polskiej'] },
+  { name: 'Lewica', pct: 7.3, coalition: false, color: PARTY_COLORS['Lewica'] },
+  { name: 'Rozwój Plus', pct: 5.1, coalition: false, color: PARTY_COLORS['Rozwój Plus'] },
+  { name: 'Razem', pct: 3.8, coalition: false, color: PARTY_COLORS['Razem'] },
+  { name: 'PSL', pct: 3.3, coalition: false, color: PARTY_COLORS['PSL'] },
+  { name: 'Polska 2050', pct: 2, coalition: false, color: PARTY_COLORS['Polska 2050'] },
 ];
 
 const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -923,7 +931,7 @@ function dhondt(validParties, totalSeats) {
 
 // ---------- The chamber: 460 dots in a hemicycle ----------
 const CHAMBER = (() => {
-  const W = 420, cx = W / 2, cy = 214, rOut = 200, rIn = 84, ROWS = 11;
+  const W = 450, cx = W / 2, cy = 214, rOut = 192, rIn = 80, ROWS = 11;
   const radii = Array.from({ length: ROWS }, (_, i) => rIn + (rOut - rIn) * i / (ROWS - 1));
   const sumR = radii.reduce((a, b) => a + b, 0);
   const counts = radii.map(r => Math.round(TOTAL_SEATS * r / sumR));
@@ -938,7 +946,7 @@ const CHAMBER = (() => {
   });
   // Left to right, so blocs fill the chamber as wedges.
   seats.sort((p, q) => q.a - p.a);
-  return { W, cx, cy, rOut, rIn, seats, dot: 4.3 };
+  return { W, cx, cy, rOut, rIn, seats, dot: 4.1 };
 })();
 
 function renderHemicycle(sorted, animate = false) {
@@ -948,30 +956,62 @@ function renderHemicycle(sorted, animate = false) {
   const owners = [];
   for (const [name, n] of sorted) for (let i = 0; i < n; i++) owners.push(name);
 
-  let svg = `<svg viewBox="0 -26 ${W} ${cy + 34}" xmlns="http://www.w3.org/2000/svg">`;
+  let svg = `<svg viewBox="0 -44 ${W} ${cy + 64}" xmlns="http://www.w3.org/2000/svg">`;
   seats.forEach((s, i) => {
     const name = owners[i];
     const party = name ? parties.find(p => p.name === name) : null;
     const fill = party ? party.color : 'rgba(243,238,227,.14)';
-    const op = !name || coalition.size === 0 || coalition.has(name) ? 1 : 0.22;
     // Seats fill in once per result; coalition taps only change opacity.
     const anim = animate && !REDUCED_MOTION ? ` class="seat" style="animation-delay:${(i * 1.6).toFixed(0)}ms"` : '';
-    svg += `<circle${anim} cx="${s.x.toFixed(1)}" cy="${s.y.toFixed(1)}" r="${dot}" fill="${fill}" stroke="rgba(243,238,227,.28)" stroke-width=".6" opacity="${op}"/>`;
+    svg += `<circle${anim} cx="${s.x.toFixed(1)}" cy="${s.y.toFixed(1)}" r="${dot}" fill="${fill}" stroke="rgba(243,238,227,.28)" stroke-width=".6"${name ? ` data-name="${esc(name)}"` : ''}/>`;
   });
 
-  // Majority marker at the 231st seat.
-  const m = seats[MAJORITY - 1].a;
-  const x1 = cx + (rIn - 12) * Math.cos(m), y1 = cy - (rIn - 12) * Math.sin(m);
-  const x2 = cx + (rOut + 10) * Math.cos(m), y2 = cy - (rOut + 10) * Math.sin(m);
-  svg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#D9A06B" stroke-width="1.2" stroke-dasharray="3 4"/>`;
-  svg += `<rect x="${x2 - 3.5}" y="${y2 - 17}" width="7" height="7" fill="#D9A06B" transform="rotate(45 ${x2} ${y2 - 13.5})"/>`;
-  svg += `<text x="${x2}" y="${y2 - 26}" text-anchor="middle" fill="rgba(243,238,227,.66)" font-family="'Spline Sans Mono',ui-monospace,monospace" font-size="9.5" letter-spacing="1.3">WIĘKSZOŚĆ ${MAJORITY}</text>`;
+  // Majority gauge: a graduated arc outside the chamber, read like an instrument.
+  // The sand pen fills from the left with the coalition's seats; the tick at 231 is the line to cross.
+  const R = rOut + 16;
+  const at = (s, r) => {
+    const a = Math.PI * (1 - s / TOTAL_SEATS);
+    return [cx + r * Math.cos(a), cy - r * Math.sin(a)];
+  };
+  const arc = `M ${cx - R} ${cy} A ${R} ${R} 0 0 1 ${cx + R} ${cy}`;
+  const mono = `font-family="'Spline Sans Mono',ui-monospace,monospace" font-size="9.5" letter-spacing="1.3"`;
+  svg += `<path d="${arc}" fill="none" stroke="rgba(243,238,227,.22)" stroke-width="1"/>`;
+  for (let s = 46; s < TOTAL_SEATS; s += 46) {
+    const [a1, b1] = at(s, R), [a2, b2] = at(s, R + 5);
+    svg += `<line x1="${a1}" y1="${b1}" x2="${a2}" y2="${b2}" stroke="rgba(243,238,227,.3)" stroke-width="1"/>`;
+  }
+  svg += `<path id="gaugePen" d="${arc}" fill="none" stroke-width="2.5" pathLength="${TOTAL_SEATS}"
+    stroke-dasharray="${TOTAL_SEATS} ${TOTAL_SEATS}" stroke-dashoffset="${TOTAL_SEATS}"/>`;
 
-  const centre = coalition.size ? coalitionSum() : lastAssigned;
-  svg += `<text x="${cx}" y="${cy - 14}" text-anchor="middle" fill="#F3EEE3" font-family="Fraunces,Georgia,serif" font-weight="300" font-size="46" letter-spacing="-1.5">${centre}</text>`;
-  svg += `<text x="${cx}" y="${cy + 6}" text-anchor="middle" fill="rgba(243,238,227,.66)" font-family="'Spline Sans Mono',ui-monospace,monospace" font-size="9.5" letter-spacing="1.3">${coalition.size ? 'KOALICJA' : 'MANDATÓW'}</text>`;
+  const [t1x, t1y] = at(MAJORITY, R - 7), [t2x, t2y] = at(MAJORITY, R + 9), [dx, dy] = at(MAJORITY, R + 17);
+  svg += `<line x1="${t1x}" y1="${t1y}" x2="${t2x}" y2="${t2y}" stroke="#D9A06B" stroke-width="1.5"/>`;
+  svg += `<rect x="${dx - 3.5}" y="${dy - 3.5}" width="7" height="7" fill="#D9A06B" transform="rotate(45 ${dx} ${dy})"/>`;
+  svg += `<text id="gaugeLabel" x="${dx}" y="${dy - 11}" text-anchor="middle" ${mono}>WIĘKSZOŚĆ ${MAJORITY}</text>`;
+  svg += `<text x="${cx - R}" y="${cy + 16}" text-anchor="middle" fill="rgba(243,238,227,.5)" ${mono}>0</text>`;
+  svg += `<text x="${cx + R}" y="${cy + 16}" text-anchor="middle" fill="rgba(243,238,227,.5)" ${mono}>${TOTAL_SEATS}</text>`;
+
+  svg += `<text id="chamberCount" x="${cx}" y="${cy - 14}" text-anchor="middle" fill="#F3EEE3" font-family="Fraunces,Georgia,serif" font-weight="300" font-size="46" letter-spacing="-1.5"></text>`;
+  svg += `<text id="chamberCaption" x="${cx}" y="${cy + 6}" text-anchor="middle" fill="rgba(243,238,227,.66)" ${mono}></text>`;
   svg += '</svg>';
   container.innerHTML = svg;
+  updateChamber();
+}
+
+// Coalition taps only touch these attributes, so the pen glides instead of the chamber redrawing.
+function updateChamber() {
+  const svg = document.querySelector('#hemicycle svg');
+  if (!svg) return;
+  svg.querySelectorAll('circle[data-name]').forEach(c => {
+    c.setAttribute('opacity', coalition.size === 0 || coalition.has(c.dataset.name) ? 1 : 0.22);
+  });
+  const sum = coalitionSum();
+  const reached = sum >= MAJORITY;
+  const pen = svg.querySelector('#gaugePen');
+  pen.setAttribute('stroke-dashoffset', TOTAL_SEATS - sum);
+  pen.setAttribute('stroke', reached ? '#D9A06B' : 'rgba(243,238,227,.7)');
+  svg.querySelector('#gaugeLabel').setAttribute('fill', reached ? '#D9A06B' : 'rgba(243,238,227,.66)');
+  svg.querySelector('#chamberCount').textContent = coalition.size ? sum : lastAssigned;
+  svg.querySelector('#chamberCaption').textContent = coalition.size ? 'KOALICJA' : 'MANDATÓW';
 }
 
 // Smoothly counts an element's text from `start` to `end`, formatting each frame.
@@ -1116,7 +1156,7 @@ function coalitionSum() {
 function toggleCoalition(name) {
   if (coalition.has(name)) coalition.delete(name);
   else coalition.add(name);
-  renderHemicycle(lastSorted);
+  updateChamber();
   updateCoalition();
 }
 
@@ -1269,7 +1309,15 @@ themeBtn.addEventListener('click', () => {
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { syncThemeBtn(); drawContours(); });
 syncThemeBtn();
 
-// ---------- Live contour field (drawn once, seeded) ----------
+// ---------- Live contour field in the shape of Poland (drawn once, seeded) ----------
+// Outline: Natural Earth 1:50m, simplified to 118 points. Units: x = (lon − 14°)·cos 52°, y = 55° − lat.
+const POLAND = [5.913,3.482,5.959,3.605,5.95,3.69,6.072,3.874,6.148,4.06,6.216,4.128,6.221,4.155,6.143,4.214,6.214,4.383,6.212,4.47,6.141,4.589,5.979,4.622,5.793,4.825,5.562,5.101,5.325,5.461,5.376,5.706,5.361,5.829,5.447,5.919,5.423,5.98,4.937,5.791,4.858,5.657,4.702,5.588,4.359,5.582,4.31,5.66,4.228,5.685,4.073,5.608,3.918,5.615,3.794,5.683,3.729,5.818,3.643,5.778,3.543,5.796,3.554,5.627,3.466,5.593,3.35,5.402,3.233,5.489,3.171,5.6,3.058,5.603,3.04,5.502,2.976,5.489,2.96,5.386,2.83,5.242,2.81,5.121,2.677,5.07,2.65,5.086,2.479,4.964,2.386,5.029,2.233,4.884,2.209,4.843,2.3,4.77,2.28,4.693,2.103,4.746,1.941,4.622,1.772,4.574,1.841,4.763,1.624,4.898,1.438,4.633,1.36,4.575,1.489,4.426,1.404,4.345,1.236,4.388,1.201,4.329,1.065,4.259,0.835,4.188,0.775,4.041,0.611,3.985,0.604,4.114,0.498,4.141,0.626,3.747,0.558,3.537,0.447,3.477,0.456,3.372,0.369,3.168,0.462,2.918,0.434,2.89,0.418,2.749,0.341,2.64,0.38,2.471,0.316,2.355,0.079,2.122,0.086,2.067,0.228,1.895,0.254,1.784,0.159,1.27,0.358,1.36,0.343,1.176,0.132,1.129,0.13,1.05,0.236,1.076,0.793,0.86,1.347,0.709,1.575,0.445,1.777,0.404,2.007,0.27,2.515,0.164,2.661,0.162,2.929,0.315,2.956,0.367,2.732,0.255,2.825,0.487,2.874,0.569,3.065,0.65,3.328,0.614,3.45,0.541,5.028,0.64,5.376,0.65,5.432,0.603,5.476,0.609,5.819,0.857,5.91,1.4,6.088,1.973,6.097,2.296,5.793,2.484,5.649,2.713,5.908,2.897,5.944,2.959,5.926,3.19,5.877,3.289,5.873,3.381];
+const geo = (lon, lat) => [(lon - 14) * Math.cos(52 * Math.PI / 180), 55 - lat];
+const KRAKOW = geo(19.94, 50.06);
+// The Wisła, from the Beskids through Kraków and Warszawa to Gdańsk.
+const WISLA = [[18.98, 49.6], [19.94, 50.06], [21.75, 50.68], [21.97, 51.42], [21.01, 52.23],
+  [19.7, 52.55], [19.07, 52.65], [18.6, 53.01], [18.75, 53.48], [18.78, 54.09], [18.95, 54.35]].map(p => geo(...p));
+
 function drawContours() {
   const sheet = document.getElementById('contourSheet');
   const canvas = document.getElementById('contour');
@@ -1280,6 +1328,32 @@ function drawContours() {
   const ctx = canvas.getContext('2d');
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, w, h);
+
+  // Fit the country: right half on wide screens, across the top on phones.
+  const pts = [];
+  for (let i = 0; i < POLAND.length; i += 2) pts.push([POLAND[i], POLAND[i + 1]]);
+  const minX = Math.min(...pts.map(p => p[0])), maxX = Math.max(...pts.map(p => p[0]));
+  const minY = Math.min(...pts.map(p => p[1])), maxY = Math.max(...pts.map(p => p[1]));
+  const gw = maxX - minX, gh = maxY - minY;
+  const gutter = Math.max(20, Math.min(64, w * 0.04));
+  let scale, ox, oy;
+  if (w >= 900) {
+    scale = Math.min((h - 40) / gh, (w * 0.46) / gw);
+    ox = w - gutter - gw * scale - Math.max(0, (w - 1200) / 2);
+    oy = (h - gh * scale) / 2;
+  } else {
+    // Phones: the map sits beside the title and stops above the lede.
+    const foot = document.querySelector('.hero-foot');
+    const room = foot.getBoundingClientRect().top - sheet.getBoundingClientRect().top - 40;
+    oy = 24;
+    scale = Math.min((w - gutter) / gw, Math.max(120, room) / gh);
+    ox = w - gutter / 2 - gw * scale;
+  }
+  const toPx = ([x, y]) => [ox + (x - minX) * scale, oy + (y - minY) * scale];
+
+  const border = new Path2D();
+  pts.map(toPx).forEach(([x, y], i) => (i ? border.lineTo(x, y) : border.moveTo(x, y)));
+  border.closePath();
 
   // Seeded value noise. Seed 50031956 = Kraków, 50°03′ N 19°56′ E.
   let seed = 50031956;
@@ -1293,27 +1367,43 @@ function drawContours() {
     return a + (b - a) * xf + (c - a) * yf + (a - b - c + d) * xf * yf;
   };
 
-  // Kraków station and the Wisła valley curving through it.
-  const sx = w * 0.72, sy = h * 0.42;
-  const river = x => sy + 10 + Math.sin(x / w * 5.2 + 0.8) * h * 0.12;
+  const river = WISLA.map(toPx);
+  const distToRiver = (x, y) => {
+    let best = Infinity;
+    for (let i = 0; i < river.length - 1; i++) {
+      const [ax, ay] = river[i], [bx, by] = river[i + 1];
+      const dx = bx - ax, dy = by - ay;
+      const t = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy)));
+      best = Math.min(best, Math.hypot(x - ax - t * dx, y - ay - t * dy));
+    }
+    return best;
+  };
+
   const height = (x, y) => {
-    const u = x / 190, v = y / 190;
+    const u = x / (scale * 0.85), v = y / (scale * 0.85);
     let z = noise(u, v) * 0.6 + noise(u * 2.1 + 9, v * 2.1 + 3) * 0.28 + noise(u * 4.3 + 17, v * 4.3 + 11) * 0.12;
-    const dv = (y - river(x)) / (h * 0.16);
-    z -= 0.42 * Math.exp(-dv * dv);
+    // The south rises into the Sudetes and the Carpathians.
+    const gy = minY + (y - oy) / scale;
+    if (gy > 4.2) z += Math.pow((gy - 4.2) / 1.6, 2) * 1.1;
+    // The Wisła cuts a valley.
+    const dr = distToRiver(x, y) / (scale * 0.32);
+    z -= 0.38 * Math.exp(-dr * dr);
     return z;
   };
 
-  const step = w > 700 ? 7 : 5;
-  const cols = Math.ceil(w / step) + 1, rows = Math.ceil(h / step) + 1;
+  const step = w > 700 ? 6 : 4;
+  const x0 = Math.floor(ox) - step, y0 = Math.floor(oy) - step;
+  const cols = Math.ceil(gw * scale / step) + 3, rows = Math.ceil(gh * scale / step) + 3;
   const field = new Float32Array(cols * rows);
-  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) field[j * cols + i] = height(i * step, j * step);
+  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) field[j * cols + i] = height(x0 + i * step, y0 + j * step);
 
   const css = getComputedStyle(document.documentElement);
   const minor = css.getPropertyValue('--contour').trim();
   const major = css.getPropertyValue('--contour-index').trim();
-  const LEVELS = 22, lo = -0.25, hi = 0.95;
+  const LEVELS = 26, lo = -0.2, hi = 1.7;
 
+  ctx.save();
+  ctx.clip(border);
   for (let L = 0; L < LEVELS; L++) {
     const t = lo + (hi - lo) * L / LEVELS;
     const isIndex = L % 5 === 0;
@@ -1324,7 +1414,7 @@ function drawContours() {
         const c = field[(j + 1) * cols + i + 1], d = field[(j + 1) * cols + i];
         const idx = (a > t) | ((b > t) << 1) | ((c > t) << 2) | ((d > t) << 3);
         if (idx === 0 || idx === 15) continue;
-        const x = i * step, y = j * step;
+        const x = x0 + i * step, y = y0 + j * step;
         const lerp = (p, q) => (t - p) / (q - p);
         const top = [x + step * lerp(a, b), y];
         const right = [x + step, y + step * lerp(b, c)];
@@ -1343,7 +1433,15 @@ function drawContours() {
     ctx.lineWidth = isIndex ? 1.1 : 0.7;
     ctx.stroke();
   }
+  ctx.restore();
 
+  // The border, drawn as the heaviest line on the sheet.
+  ctx.strokeStyle = major;
+  ctx.lineWidth = 1.4;
+  ctx.lineJoin = 'round';
+  ctx.stroke(border);
+
+  const [sx, sy] = toPx(KRAKOW);
   const station = document.getElementById('station');
   station.style.left = sx + 'px';
   station.style.top = sy + 'px';
