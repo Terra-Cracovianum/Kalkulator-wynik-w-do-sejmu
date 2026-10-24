@@ -2,653 +2,839 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
-<title>Kalkulator Sejmowy</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f3eee3">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Kalkulator">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" href="logo.svg">
+<meta name="description" content="Kalkulator sejmowy Terra Cracovianum: wpisz poparcie w procentach i zobacz podział 460 mandatów metodą D'Hondta.">
+<title>Kalkulator Sejmowy · Terra Cracovianum</title>
+<link rel="icon" type="image/svg+xml" href="logo.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Instrument+Sans:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+  // Night chart: a reader's choice, remembered per browser.
+  try { const t = localStorage.getItem('tc-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
 <style>
+  /* ---------- Terra Cracovianum · Living Atlas tokens ---------- */
   :root {
-    color-scheme: light dark;
+    --parchment: #f3eee3; --parchment-deep: #e9e2d2;
+    --ink: #181c17; --ink-deep: #10140f; --ink-soft: #3c4238;
+    --moss: #2e4636; --sienna: #c2451e; --sienna-ink: #a83a17;
+    --sand: #d9a06b; --sand-soft: #e6b8a6;
 
-    /* Surfaces */
-    --bg: #f2f2f7;
-    --bg-grad-1: #eef1f8;
-    --bg-grad-2: #f6f4fb;
-    --card: rgba(255, 255, 255, 0.72);
-    --card-solid: #ffffff;
-    --card-border: rgba(255, 255, 255, 0.6);
-    --hairline: rgba(60, 60, 67, 0.12);
+    --line-dark: rgba(243, 238, 227, .16);
+    --on-dark-2: rgba(243, 238, 227, .66);
 
-    /* Text */
-    --text: #1d1d1f;
-    --text-secondary: rgba(60, 60, 67, 0.6);
-    --text-tertiary: rgba(60, 60, 67, 0.3);
+    --serif: 'Fraunces', Georgia, serif;
+    --sans: 'Instrument Sans', system-ui, -apple-system, sans-serif;
+    --mono: 'Spline Sans Mono', ui-monospace, Menlo, monospace;
 
-    /* Accents (Apple system colours) */
-    --accent: #0a84ff;
-    --accent-2: #5e5ce6;
-    --accent-light: rgba(10, 132, 255, 0.12);
-    --danger: #ff3b30;
-    --danger-light: rgba(255, 59, 48, 0.12);
-    --success: #34c759;
-
-    --fill: rgba(118, 118, 128, 0.12);
-    --fill-strong: rgba(118, 118, 128, 0.2);
-
-    --radius: 22px;
-    --radius-sm: 14px;
-    --shadow: 0 10px 30px -12px rgba(28, 28, 40, 0.22), 0 2px 8px -2px rgba(28, 28, 40, 0.08);
-    --shadow-soft: 0 1px 2px rgba(0,0,0,0.04);
-
+    --gutter: clamp(20px, 4vw, 64px);
+    --sect: clamp(64px, 10vh, 120px);
+    --arrive: cubic-bezier(.22, 1, .36, 1);
+    --mech: cubic-bezier(.76, 0, .24, 1);
     --safe-bottom: env(safe-area-inset-bottom, 0px);
-    --safe-top: env(safe-area-inset-top, 0px);
+
+    /* Day (semantic) */
+    color-scheme: light;
+    --paper: var(--parchment);
+    --panel: var(--parchment-deep);
+    --text: var(--ink);
+    --text-2: var(--ink-soft);
+    --em: var(--moss);
+    --signal: var(--sienna);
+    --signal-text: var(--sienna-ink);
+    --line: rgba(24, 28, 23, .16);
+    --line-2: rgba(24, 28, 23, .32);
+    --contour: rgba(46, 70, 54, .30);
+    --contour-index: rgba(46, 70, 54, .62);
+    --band: var(--ink-deep);
+    --grain-blend: multiply;
+    --grain-opacity: .42;
   }
 
+  /* Night chart: the same atlas printed on ink */
   @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #000000;
-      --bg-grad-1: #0a0a12;
-      --bg-grad-2: #14101f;
-      --card: rgba(28, 28, 30, 0.66);
-      --card-solid: #1c1c1e;
-      --card-border: rgba(255, 255, 255, 0.08);
-      --hairline: rgba(84, 84, 88, 0.4);
-
-      --text: #f5f5f7;
-      --text-secondary: rgba(235, 235, 245, 0.6);
-      --text-tertiary: rgba(235, 235, 245, 0.3);
-
-      --accent: #0a84ff;
-      --accent-2: #7d7aff;
-      --accent-light: rgba(10, 132, 255, 0.22);
-      --danger: #ff453a;
-      --danger-light: rgba(255, 69, 58, 0.18);
-      --success: #32d74b;
-
-      --fill: rgba(118, 118, 128, 0.24);
-      --fill-strong: rgba(118, 118, 128, 0.36);
-
-      --shadow: 0 14px 40px -14px rgba(0, 0, 0, 0.7);
-      --shadow-soft: 0 1px 2px rgba(0,0,0,0.3);
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --paper: #10140f; --panel: #181d17;
+      --text: #f3eee3; --text-2: rgba(243, 238, 227, .74);
+      --em: var(--sand); --signal: var(--sand); --signal-text: var(--sand);
+      --line: rgba(243, 238, 227, .16); --line-2: rgba(243, 238, 227, .32);
+      --contour: rgba(217, 160, 107, .22); --contour-index: rgba(217, 160, 107, .50);
+      --band: #0b0e0a;
+      --grain-blend: screen; --grain-opacity: .25;
     }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --paper: #10140f; --panel: #181d17;
+    --text: #f3eee3; --text-2: rgba(243, 238, 227, .74);
+    --em: var(--sand); --signal: var(--sand); --signal-text: var(--sand);
+    --line: rgba(243, 238, 227, .16); --line-2: rgba(243, 238, 227, .32);
+    --contour: rgba(217, 160, 107, .22); --contour-index: rgba(217, 160, 107, .50);
+    --band: #0b0e0a;
+    --grain-blend: screen; --grain-opacity: .25;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-  html { -webkit-text-size-adjust: 100%; }
+  html { -webkit-text-size-adjust: 100%; touch-action: manipulation; }
+  button, input, a { touch-action: manipulation; }
 
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', sans-serif;
-    background: var(--bg);
+    font-family: var(--sans);
+    background: var(--paper);
     color: var(--text);
     min-height: 100dvh;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
-    position: relative;
+    transition: background .3s var(--arrive), color .3s var(--arrive);
   }
 
-  /* Ambient gradient mesh background */
-  body::before {
+  /* Paper grain: static, barely there */
+  body::after {
     content: '';
-    position: fixed;
-    inset: -20%;
-    z-index: -1;
-    background:
-      radial-gradient(40% 35% at 15% 8%, rgba(94, 92, 230, 0.22), transparent 70%),
-      radial-gradient(45% 40% at 92% 12%, rgba(10, 132, 255, 0.20), transparent 70%),
-      radial-gradient(50% 45% at 80% 95%, rgba(52, 199, 89, 0.12), transparent 70%),
-      radial-gradient(45% 45% at 5% 90%, rgba(255, 59, 48, 0.10), transparent 70%),
-      linear-gradient(180deg, var(--bg-grad-1), var(--bg-grad-2));
-    background-attachment: fixed;
-    animation: drift 22s ease-in-out infinite alternate;
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    mix-blend-mode: var(--grain-blend);
+    opacity: var(--grain-opacity);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
-  @keyframes drift {
-    0%   { transform: translate3d(0,0,0) scale(1); }
-    100% { transform: translate3d(0,-2%,0) scale(1.06); }
-  }
+  :focus-visible { outline: 2px solid var(--sienna); outline-offset: 3px; }
 
-  .container {
-    max-width: 500px;
+  .wrap {
+    max-width: 1200px;
     margin: 0 auto;
-    padding: calc(var(--safe-top) + 8px) 16px 0;
-    padding-bottom: 180px;
+    padding-left: max(var(--gutter), env(safe-area-inset-left, 0px));
+    padding-right: max(var(--gutter), env(safe-area-inset-right, 0px));
   }
 
-  /* ---------- Hero header ---------- */
-  header {
-    text-align: center;
-    padding: 36px 0 26px;
-  }
-
-  header h1 {
-    font-size: clamp(34px, 11vw, 46px);
-    font-weight: 800;
-    line-height: 1.02;
-    letter-spacing: -0.035em;
-    color: var(--text);
-    margin-bottom: 12px;
-  }
-
-  header p {
-    font-size: 15px;
-    line-height: 1.45;
-    color: var(--text-secondary);
-    max-width: 320px;
-    margin: 0 auto;
-  }
-
-  /* ---------- Section labels ---------- */
-  .section-label {
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    color: var(--text-secondary);
-    margin: 0 0 12px 6px;
-  }
-
-  /* ---------- Party cards ---------- */
-  .party-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 14px;
-  }
-
-  .party-card {
-    position: relative;
-    background: var(--card);
-    -webkit-backdrop-filter: saturate(180%) blur(30px);
-    backdrop-filter: saturate(180%) blur(30px);
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius);
-    padding: 14px 14px 14px 18px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    box-shadow: var(--shadow);
-    transition: transform 0.45s cubic-bezier(0.22,1,0.36,1),
-                opacity 0.45s cubic-bezier(0.22,1,0.36,1),
-                filter 0.3s ease;
-    animation: cardIn 0.55s cubic-bezier(0.22,1,0.36,1) both;
-    transform-origin: center;
-  }
-
-  @keyframes cardIn {
-    from { opacity: 0; transform: translateY(10px) scale(0.98); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
-  }
-
-  .party-card.below-threshold {
-    opacity: 0.5;
-    filter: saturate(0.6);
-  }
-
-  /* Coloured spine on the left edge */
-  .party-color {
-    width: 5px;
-    align-self: stretch;
-    min-height: 46px;
-    border-radius: 100px;
-    flex-shrink: 0;
-    box-shadow: 0 0 14px -2px currentColor;
-  }
-
-  .party-info {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 9px;
-  }
-
-  .party-top-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .party-name {
-    font-size: 17px;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    background: none;
-    border: none;
-    color: var(--text);
-    padding: 2px 0;
-    width: 100%;
-    min-width: 0;
-    outline: none;
-    font-family: inherit;
-    border-bottom: 1.5px solid transparent;
-    transition: border-color 0.2s;
-  }
-  .party-name:focus { border-bottom-color: var(--accent); }
-
-  /* Coalition toggle pill */
-  .coalition-badge {
+  .mono {
+    font-family: var(--mono);
     font-size: 11px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    padding: 6px 11px;
-    border-radius: 100px;
-    background: var(--fill);
-    color: var(--text-secondary);
-    cursor: pointer;
-    white-space: nowrap;
-    user-select: none;
-    flex-shrink: 0;
-    transition: background 0.25s, color 0.25s, transform 0.15s;
-  }
-  .coalition-badge:active { transform: scale(0.92); }
-  .coalition-badge.active {
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    color: #fff;
-    box-shadow: 0 4px 12px -2px var(--accent-light);
-  }
-
-  .party-bottom-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .threshold-label {
-    font-size: 12px;
     font-weight: 500;
-    color: var(--text-tertiary);
-    white-space: nowrap;
-  }
-
-  .pct-input-wrap {
-    display: flex;
-    align-items: baseline;
-    gap: 1px;
-    margin-left: auto;
-    background: var(--fill);
-    padding: 4px 12px;
-    border-radius: 12px;
-    transition: box-shadow 0.2s, background 0.2s;
-  }
-  .pct-input-wrap:focus-within {
-    background: var(--accent-light);
-    box-shadow: inset 0 0 0 1.5px var(--accent);
-  }
-
-  .pct-input {
-    width: 46px;
-    font-size: 21px;
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    font-family: inherit;
-    text-align: right;
-    border: none;
-    background: none;
-    color: var(--text);
-    outline: none;
-    padding: 0;
-    -moz-appearance: textfield;
+    letter-spacing: .14em;
+    text-transform: uppercase;
     font-variant-numeric: tabular-nums;
   }
-  .pct-input::-webkit-inner-spin-button,
-  .pct-input::-webkit-outer-spin-button { -webkit-appearance: none; }
-  .pct-input:focus { color: var(--accent); }
 
-  .pct-symbol {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text-secondary);
-  }
-
-  .remove-btn {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    border: none;
-    background: var(--fill);
-    color: var(--text-secondary);
-    font-size: 17px;
-    line-height: 1;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .diamond {
+    display: inline-block;
+    width: 7px; height: 7px;
+    background: var(--signal);
+    transform: rotate(45deg);
     flex-shrink: 0;
-    transition: background 0.2s, color 0.2s, transform 0.15s;
   }
-  .remove-btn:active { transform: scale(0.85); }
-  .remove-btn:hover { background: var(--danger); color: #fff; }
 
-  /* ---------- Add button ---------- */
-  .add-btn {
-    width: 100%;
-    padding: 16px;
-    border: 1.5px dashed var(--hairline);
-    border-radius: var(--radius);
-    background: var(--card);
-    -webkit-backdrop-filter: blur(20px);
-    backdrop-filter: blur(20px);
-    color: var(--accent);
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    font-family: inherit;
-    cursor: pointer;
-    transition: border-color 0.2s, background 0.2s, transform 0.15s;
-    display: flex;
+  .skip {
+    position: absolute; left: 12px; top: -60px; z-index: 200;
+    background: var(--ink); color: var(--parchment);
+    padding: 10px 16px; border-radius: 999px; text-decoration: none;
+  }
+  .skip:focus { top: 12px; }
+
+  /* ---------- Pills ---------- */
+  .pill {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-  }
-  .add-btn:active { transform: scale(0.985); }
-  .add-btn:hover { border-color: var(--accent); background: var(--accent-light); }
-  .add-btn svg { width: 18px; height: 18px; }
-
-  /* ---------- Sticky bottom action bar ---------- */
-  .action-dock {
-    position: fixed;
-    left: 0; right: 0; bottom: 0;
-    z-index: 50;
-    padding: 14px 16px calc(14px + var(--safe-bottom));
-    background: linear-gradient(180deg, transparent, var(--bg) 42%);
-    pointer-events: none;
-  }
-  .action-dock-inner {
-    max-width: 500px;
-    margin: 0 auto;
-    background: var(--card);
-    -webkit-backdrop-filter: saturate(180%) blur(30px);
-    backdrop-filter: saturate(180%) blur(30px);
-    border: 1px solid var(--card-border);
-    border-radius: 26px;
-    box-shadow: var(--shadow);
-    padding: 12px;
-    pointer-events: auto;
-  }
-
-  .total-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 4px 10px 12px;
-  }
-  .total-bar .label {
+    min-height: 44px;
+    padding: 0 18px;
+    border-radius: 999px;
+    border: 1px solid var(--text);
+    background: transparent;
+    color: var(--text);
+    font-family: var(--sans);
     font-size: 14px;
     font-weight: 500;
-    color: var(--text-secondary);
-  }
-  .total-bar .value {
-    font-weight: 700;
-    font-size: 19px;
-    letter-spacing: -0.02em;
-    font-variant-numeric: tabular-nums;
-    color: var(--text);
-    transition: color 0.25s;
-  }
-  .total-bar .value.over { color: var(--danger); }
-
-  .show-results-btn {
-    width: 100%;
-    padding: 16px;
-    border: none;
-    border-radius: 16px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    color: #fff;
-    font-size: 17px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    font-family: inherit;
+    text-decoration: none;
     cursor: pointer;
-    box-shadow: 0 8px 20px -6px var(--accent-light);
-    transition: transform 0.18s cubic-bezier(0.22,1,0.36,1), filter 0.2s, opacity 0.2s;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    transition: color .3s var(--mech), transform .15s var(--arrive);
   }
-  .show-results-btn:active { transform: scale(0.97); }
-  .show-results-btn:disabled {
-    background: var(--fill-strong);
-    color: var(--text-tertiary);
-    cursor: not-allowed;
-    box-shadow: none;
+  .pill::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: var(--text);
+    transform: translateY(101%);
+    transition: transform .4s var(--mech);
+    z-index: -1;
   }
+  .pill:active { transform: scale(.95); }
+  .pill .arr { display: inline-block; transition: transform .3s var(--arrive); }
+  .pill.small { min-height: 38px; padding: 0 14px; font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; }
 
-  /* ---------- Results ---------- */
-  .results-section {
-    margin-top: 30px;
-    animation: cardIn 0.6s cubic-bezier(0.22,1,0.36,1) both;
-  }
-
-  .results-card {
-    background: var(--card);
-    -webkit-backdrop-filter: saturate(180%) blur(30px);
-    backdrop-filter: saturate(180%) blur(30px);
-    border: 1px solid var(--card-border);
-    border-radius: 26px;
-    box-shadow: var(--shadow);
-    padding: 20px 18px;
-  }
-
-  .results-header {
+  /* ---------- Masthead ---------- */
+  .masthead {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 6px;
-    padding: 0 2px;
+    gap: 12px;
+    padding-top: calc(10px + env(safe-area-inset-top, 0px));
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+    position: relative;
+    z-index: 2;
   }
-  .results-header .section-label { margin: 0; }
-  .results-header .total-seats {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    font-variant-numeric: tabular-nums;
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text);
+    text-decoration: none;
+    min-height: 44px;
+  }
+  .sigil { width: 28px; height: 45px; flex-shrink: 0; color: currentColor; --logo-cut: var(--paper); }
+  .brand-name {
+    font-family: var(--serif);
+    font-weight: 340;
+    font-size: 19px;
+    line-height: 1.02;
+    letter-spacing: -.015em;
+  }
+  .brand-name i { font-style: italic; color: var(--em); }
+  .mast-actions { display: flex; align-items: center; gap: 8px; }
+  .site-long { display: none; }
+  @media (min-width: 620px) {
+    .site-long { display: inline; }
+    .site-short { display: none; }
   }
 
-  .hemicycle-wrap {
-    margin: 10px 0 22px;
-    text-align: center;
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    padding-top: clamp(40px, 8vh, 96px);
+    padding-bottom: clamp(40px, 7vh, 88px);
+    overflow: hidden;
   }
-  .hemicycle-wrap svg { width: 100%; max-width: 380px; height: auto; }
+  .contour-sheet {
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: min(100%, 980px);
+    height: 100%;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 55%);
+            mask-image: linear-gradient(90deg, transparent 0%, #000 55%);
+    opacity: 0;
+    transition: opacity 1.1s var(--arrive);
+  }
+  .contour-sheet.ready { opacity: 1; }
+  .contour-sheet canvas { width: 100%; height: 100%; display: block; }
 
-  .result-row {
+  .station {
+    position: absolute;
+    width: 0; height: 0;
+    pointer-events: none;
+  }
+  .station::before, .station::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .station::before { width: 6px; height: 6px; background: var(--signal); }
+  .station::after {
+    width: 18px; height: 18px;
+    border: 1.5px solid var(--signal);
+    animation: pulse 2.6s var(--arrive) infinite;
+  }
+  @keyframes pulse {
+    0%   { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(2.6); opacity: 0; }
+  }
+  .station span {
+    position: absolute;
+    left: 16px; top: -5px;
+    white-space: nowrap;
+    color: var(--text-2);
+    font-size: 10px;
+  }
+  @media (max-width: 620px) {
+    .station span { left: auto; right: 16px; }
+  }
+
+  .hero-inner { position: relative; z-index: 1; }
+
+  .kicker {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 6px;
-    padding: 6px 8px;
-    border-radius: 14px;
-    cursor: pointer;
-    user-select: none;
-    box-shadow: inset 0 0 0 0 transparent;
-    transition: background 0.22s, opacity 0.22s, box-shadow 0.22s, transform 0.12s;
+    color: var(--text-2);
+    margin-bottom: clamp(18px, 3vh, 28px);
   }
-  .result-row:last-child { margin-bottom: 0; }
-  .result-row:active { transform: scale(0.99); }
-  .result-row.selected {
-    background: var(--accent-light);
-    box-shadow: inset 0 0 0 1.5px var(--accent);
-  }
-  .result-row.selected .result-name { color: var(--accent); }
-  .result-row.dimmed { opacity: 0.45; }
+  .kicker .rule { width: 32px; height: 1px; background: var(--signal); }
 
-  /* Coalition builder */
-  .coalition-hint {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text-tertiary);
-    text-align: center;
-    margin: 2px 0 14px;
+  h1.title {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(56px, 13vw, 196px);
+    line-height: .84;
+    letter-spacing: -.045em;
+    font-variation-settings: 'opsz' 144;
   }
-  .coalition-status {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 13px 16px;
-    border-radius: 16px;
-    margin: 0 0 16px;
-    background: var(--fill);
-    box-shadow: inset 0 0 0 0 transparent;
-    transition: background 0.3s, box-shadow 0.3s;
-    animation: cardIn 0.35s cubic-bezier(0.22,1,0.36,1) both;
-  }
-  .coalition-status .cs-left { display: flex; align-items: baseline; gap: 6px; }
-  .coalition-status .cs-count {
-    font-size: 24px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    color: var(--accent);
-    font-variant-numeric: tabular-nums;
-    transition: color 0.3s;
-  }
-  .coalition-status .cs-sep { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
-  .coalition-status .cs-msg { font-size: 13px; font-weight: 700; text-align: right; color: var(--text-secondary); }
-  .coalition-status.reached {
-    background: rgba(52,199,89,0.14);
-    box-shadow: inset 0 0 0 1.5px rgba(52,199,89,0.4);
-  }
-  .coalition-status.reached .cs-count,
-  .coalition-status.reached .cs-msg { color: var(--success); }
-
-  .result-name {
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    width: 78px;
-    flex-shrink: 0;
-    line-height: 1.2;
-    /* wrap only between whole words, never mid-word */
-    word-break: normal;
-    overflow-wrap: normal;
-    hyphens: none;
-  }
-
-  .result-bar-wrap {
-    flex: 1;
-    height: 32px;
-    background: var(--fill);
-    border-radius: 10px;
+  h1.title .line {
+    display: block;
     overflow: hidden;
-    position: relative;
+    padding: .1em 0 .12em;
+    margin: -.1em 0 -.12em;
   }
-  .result-bar {
-    height: 100%;
-    border-radius: 10px;
-    transition: width 0.7s cubic-bezier(0.22,1,0.36,1);
+  h1.title .line > span {
+    display: inline-block;
+    animation: rise 1s var(--arrive) both;
+  }
+  h1.title .line:nth-child(2) > span { animation-delay: .08s; }
+  h1.title i { font-style: italic; color: var(--em); }
+  @keyframes rise { from { transform: translateY(105%); } to { transform: translateY(0); } }
+
+  .hero-foot {
+    display: grid;
+    gap: 28px;
+    margin-top: clamp(28px, 5vh, 56px);
+  }
+  .lede {
+    font-size: clamp(16px, 1.3vw, 19px);
+    line-height: 1.55;
+    color: var(--text-2);
+    max-width: 440px;
+    text-wrap: pretty;
+  }
+  .readout {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 20px;
+    row-gap: 0;
+    align-self: end;
+    max-width: 360px;
+  }
+  .readout dt, .readout dd {
+    padding: 9px 0;
+    border-top: 1px solid var(--line);
+  }
+  .readout dt { color: var(--text-2); }
+  .readout dd { color: var(--text); text-align: right; }
+  @media (min-width: 900px) {
+    .hero-foot { grid-template-columns: 1fr auto; align-items: end; }
+    .readout { min-width: 340px; }
+  }
+
+  /* ---------- Section head (1 : 3 split) ---------- */
+  .section { padding-top: var(--sect); padding-bottom: var(--sect); }
+  .section.join { padding-top: 0; }
+  .sect-head {
+    display: grid;
+    gap: 14px;
+    margin-bottom: clamp(24px, 4vh, 44px);
+  }
+  .sect-head .kicker { margin: 0; }
+  .sect-title {
+    font-family: var(--serif);
+    font-weight: 330;
+    font-size: clamp(40px, 6.2vw, 96px);
+    line-height: .98;
+    letter-spacing: -.03em;
+    text-wrap: balance;
+    font-variation-settings: 'opsz' 144;
+  }
+  .sect-title i { font-style: italic; color: var(--em); }
+  .sect-note {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    color: var(--text-2);
+  }
+  @media (min-width: 900px) {
+    .sect-head { grid-template-columns: 1fr 3fr; column-gap: var(--gutter); align-items: start; }
+    .sect-head .kicker { padding-top: 14px; }
+    .sect-note { grid-column: 2; }
+  }
+
+  /* ---------- Party register ---------- */
+  .register { border-top: 1px solid var(--line-2); }
+  @media (min-width: 900px) {
+    .register-col { margin-left: calc(25% + var(--gutter) / 4); }
+  }
+
+  .reg-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    grid-template-areas: "name name name" "meta pct remove";
+    align-items: center;
+    column-gap: 14px;
+    row-gap: 4px;
+    padding: 8px 0 14px;
+    border-bottom: 1px solid var(--line);
+    animation: arrive .7s var(--arrive) both;
+  }
+  @keyframes arrive { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+  .reg-name-line { grid-area: name; display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .pct-field { grid-area: pct; }
+  .remove-btn { grid-area: remove; }
+  .swatch { width: 12px; height: 12px; flex-shrink: 0; box-shadow: inset 0 0 0 1px var(--line-2); }
+
+  .party-name {
+    font-family: var(--serif);
+    font-weight: 360;
+    font-size: clamp(19px, 1.9vw, 26px);
+    letter-spacing: -.012em;
+    line-height: 1.18;
+    color: var(--text);
+    background: none;
+    border: none;
+    border-bottom: 1px solid transparent;
+    padding: 9px 0;
+    width: 100%;
+    min-width: 0;
+    outline: none;
+    border-radius: 0;
+    transition: border-color .2s var(--arrive);
+  }
+  .party-name:focus { border-bottom-color: var(--signal); }
+
+  .reg-meta {
+    grid-area: meta;
     min-width: 0;
     display: flex;
     align-items: center;
-    padding-left: 10px;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    color: var(--text-2);
+    padding-left: 22px;
+  }
+  .type-chip {
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    min-height: 36px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid var(--line-2);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    transition: background .25s var(--mech), color .25s var(--mech), border-color .25s, transform .15s var(--arrive);
+  }
+  .type-chip:active { transform: scale(.95); }
+  .type-chip[aria-pressed="true"] { background: var(--text); color: var(--paper); border-color: var(--text); }
+  .under-flag { color: var(--signal-text); display: none; }
+  .reg-row.below .under-flag { display: inline; }
+  .reg-row.below .party-name, .reg-row.below .pct-input { color: var(--text-2); }
+
+  .pct-field {
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+    border-bottom: 1px solid var(--line-2);
+    padding: 0 2px 2px;
+    transition: border-color .2s var(--arrive);
+  }
+  .pct-field:focus-within { border-bottom-color: var(--signal); }
+  .pct-input {
+    width: 2.6em;
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(28px, 3vw, 40px);
+    letter-spacing: -.03em;
+    text-align: right;
+    background: none;
+    border: none;
+    color: var(--text);
+    outline: none;
+    padding: 6px 0 2px;
+    font-variant-numeric: tabular-nums lining-nums;
+    font-variation-settings: 'opsz' 72;
+  }
+  .pct-sym { font-family: var(--serif); font-size: 18px; color: var(--text-2); }
+
+  .remove-btn {
+    width: 44px; height: 44px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-2);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    transition: border-color .2s, color .2s, transform .15s var(--arrive);
+  }
+  .remove-btn:active { transform: scale(.9); }
+
+  .reg-actions { margin-top: 22px; }
+
+  /* ---------- Results: the dark band ---------- */
+  .band {
+    background: var(--band);
+    color: var(--parchment);
+    --text: var(--parchment);
+    --text-2: var(--on-dark-2);
+    --em: var(--sand);
+    --signal: var(--sand);
+    --signal-text: var(--sand);
+    --line: var(--line-dark);
+    --line-2: rgba(243, 238, 227, .32);
+    --paper: var(--band);
     position: relative;
     overflow: hidden;
   }
-  /* subtle sheen on bars */
-  .result-bar::after {
+  .band::before {
+    /* graticule fading out radially */
     content: '';
     position: absolute; inset: 0;
-    background: linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0) 55%);
+    background-image:
+      linear-gradient(var(--line-dark) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-dark) 1px, transparent 1px);
+    background-size: 88px 88px;
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, rgba(0,0,0,.45), transparent 75%);
+            mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, rgba(0,0,0,.45), transparent 75%);
     pointer-events: none;
   }
-  .result-bar-label {
-    font-size: 13px;
-    font-weight: 700;
-    color: #fff;
-    white-space: nowrap;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  .band .wrap { position: relative; }
+  .band[hidden] { display: none; }
+  .band.entering { animation: arrive .9s var(--arrive) both; }
+
+  .chamber-grid { display: grid; gap: clamp(24px, 4vh, 40px); }
+  @media (min-width: 1000px) {
+    .chamber-grid { grid-template-columns: 1.25fr 1fr; align-items: start; column-gap: var(--gutter); }
+  }
+
+  .chamber svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .chamber circle.seat { animation: seatIn .6s var(--arrive) both; transition: opacity .3s var(--arrive); }
+  @keyframes seatIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .coalition-box {
+    border-top: 1px solid var(--line-2);
+    border-bottom: 1px solid var(--line);
+    padding: 16px 0;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 82px;
+  }
+  .cb-count {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(48px, 7vw, 96px);
+    line-height: .9;
+    letter-spacing: -.04em;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+  .cb-count small { font-size: .32em; letter-spacing: -.01em; color: var(--text-2); margin-left: 6px; }
+  .cb-msg { text-align: right; color: var(--text-2); max-width: 46%; line-height: 1.6; }
+  .cb-msg.reached { color: var(--sand); }
+
+  .res-row {
+    display: grid;
+    grid-template-columns: minmax(64px, 108px) 1fr 44px 52px;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 8px;
+    margin: 0 -8px;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
     position: relative;
-    z-index: 1;
-    font-variant-numeric: tabular-nums;
+    isolation: isolate;
+    user-select: none;
+    animation: arrive .7s var(--arrive) both;
+    transition: opacity .3s var(--arrive);
   }
-
-  .result-seats {
-    font-size: 17px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    width: 40px;
-    text-align: right;
-    flex-shrink: 0;
-    font-variant-numeric: tabular-nums;
+  .res-row::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: rgba(243, 238, 227, .07);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform .45s var(--mech);
+    z-index: -1;
   }
-  .result-pct {
-    font-size: 12px;
+  .res-row[aria-pressed="true"]::before { transform: scaleY(1); }
+  .res-row.dimmed { opacity: .45; }
+  .res-name {
+    font-family: var(--sans);
     font-weight: 500;
-    color: var(--text-secondary);
-    width: 40px;
+    font-size: 15px;
+    line-height: 1.2;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow-wrap: normal;
+  }
+  .res-row .diamond { opacity: 0; transition: opacity .2s; }
+  .res-row[aria-pressed="true"] .diamond { opacity: 1; }
+  .res-track { height: 10px; background: rgba(243, 238, 227, .08); position: relative; }
+  .res-bar {
+    height: 100%;
+    width: 0;
+    box-shadow: inset 0 0 0 1px rgba(243, 238, 227, .22);
+    transition: width .9s var(--arrive);
+  }
+  .res-seats {
+    font-family: var(--serif);
+    font-weight: 340;
+    font-size: 24px;
+    letter-spacing: -.02em;
     text-align: right;
-    flex-shrink: 0;
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+  .res-pct { text-align: right; color: var(--text-2); }
+
+  .band-note {
+    margin-top: 22px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+    color: var(--text-2);
+    line-height: 1.8;
+  }
+  .band-note + .band-note { margin-top: 0; border-top: 0; padding-top: 0; }
+
+  /* ---------- Footer ---------- */
+  .site-footer {
+    padding-top: clamp(48px, 8vh, 88px);
+    padding-bottom: calc(140px + var(--safe-bottom));
+  }
+  .foot-grid {
+    display: grid;
+    gap: 28px;
+    border-top: 1px solid var(--line-2);
+    padding-top: 28px;
+  }
+  .foot-brand { display: flex; gap: 16px; align-items: flex-start; }
+  .foot-brand .sigil { width: 36px; height: 58px; }
+  .foot-title {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(28px, 3.3vw, 46px);
+    line-height: 1.08;
+    letter-spacing: -.02em;
+    text-wrap: balance;
+  }
+  .foot-title i { font-style: italic; color: var(--em); }
+  .foot-meta { color: var(--text-2); line-height: 2; }
+  .foot-meta a { color: var(--signal-text); text-decoration: none; border-bottom: 1px solid currentColor; }
+  @media (min-width: 900px) {
+    .foot-grid { grid-template-columns: 2fr 1fr; align-items: end; }
   }
 
-  .below-threshold-note {
-    text-align: center;
-    font-size: 13px;
-    line-height: 1.5;
-    color: var(--text-secondary);
-    margin-top: 18px;
-    padding: 14px 16px;
-    background: var(--fill);
-    border-radius: var(--radius-sm);
+  /* ---------- Dock ---------- */
+  .dock {
+    position: fixed;
+    left: 50%;
+    bottom: calc(14px + var(--safe-bottom));
+    transform: translateX(-50%);
+    z-index: 50;
+    width: min(calc(100% - 24px), 520px);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 7px 7px 7px 20px;
+    border-radius: 999px;
+    background: rgba(16, 20, 15, .88);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid var(--line-dark);
+    color: var(--parchment);
   }
-
-  .method-note {
-    text-align: center;
-    font-size: 12px;
+  :root[data-theme="dark"] .dock { background: rgba(11, 14, 10, .9); }
+  .dock .diamond { background: var(--sand); }
+  .dock-label { color: var(--on-dark-2); }
+  .dock-value {
+    font-family: var(--serif);
+    font-weight: 340;
+    font-size: 24px;
+    letter-spacing: -.02em;
+    font-variant-numeric: tabular-nums lining-nums;
+    margin-right: auto;
+    transition: color .25s;
+  }
+  .dock-value.over { color: var(--sand-soft); }
+  .dock-btn {
+    min-height: 48px;
+    padding: 0 22px;
+    border: none;
+    border-radius: 999px;
+    background: var(--parchment);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15px;
     font-weight: 500;
-    color: var(--text-tertiary);
-    margin-top: 26px;
-    line-height: 1.6;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: transform .15s var(--arrive), background .2s, color .2s;
   }
+  .dock-btn:active { transform: scale(.95); }
+  .dock-btn:disabled { background: rgba(243, 238, 227, .14); color: var(--on-dark-2); cursor: not-allowed; transform: none; }
+  .dock-btn .arr { display: inline-block; transition: transform .3s var(--arrive); }
+
+  @media (max-width: 380px) {
+    .dock { padding-left: 14px; gap: 8px; }
+    .dock-label { display: none; }
+    .brand-name { font-size: 17px; }
+    .brand { gap: 8px; }
+    .sigil { width: 24px; height: 39px; }
+    .mast-actions { gap: 6px; }
+    .pill.small { padding: 0 11px; letter-spacing: .1em; }
+    .reg-ref { display: none; }
+    .reg-meta { padding-left: 0; gap: 4px 8px; }
+    .reg-row { column-gap: 8px; }
+    .res-row { grid-template-columns: minmax(56px, 76px) 1fr 38px 46px; gap: 8px; }
+    .res-seats { font-size: 21px; }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .pill:hover::before { transform: translateY(0); }
+    .pill:hover { color: var(--paper); }
+    .pill:hover .arr { transform: translateX(4px); }
+    .party-name:hover { border-bottom-color: var(--line); }
+    .type-chip:hover { border-color: var(--text); }
+    .remove-btn:hover { border-color: var(--line-2); color: var(--signal-text); }
+    .res-row:hover::before { transform: scaleY(1); }
+    .dock-btn:hover { background: #fff; }
+    .dock-btn:not(:disabled):hover .arr { transform: translateY(2px); }
+  }
+
+  /* While the keyboard is up, the dock steps aside so it never covers the field being edited. */
+  body.editing .dock { transform: translate(-50%, calc(100% + 40px)); opacity: 0; pointer-events: none; }
+  .dock { transition: transform .4s var(--arrive), opacity .3s var(--arrive); }
 
   @media (prefers-reduced-motion: reduce) {
-    *, body::before { animation: none !important; }
-    .result-bar, .party-card, .show-results-btn { transition: none !important; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
   }
 </style>
 </head>
 <body>
+<a class="skip" href="#parties">Przejdź do kalkulatora</a>
 
-<div class="container">
-  <header>
-    <h1>Kalkulator<br>Sejmowy</h1>
-    <p>Wpisz poparcie w procentach i zobacz prognozowany podział mandatów w Sejmie.</p>
-  </header>
-
-  <div class="section-label">Partie i koalicje</div>
-  <div class="party-list" id="partyList"></div>
-  <button class="add-btn" id="addPartyBtn">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-    Dodaj partię
-  </button>
-
-  <div class="results-section" id="resultsSection" style="display:none">
-    <div class="results-card">
-      <div class="results-header">
-        <div class="section-label">Wyniki</div>
-        <div class="total-seats" id="totalSeats">460 mandatów</div>
-      </div>
-      <div class="hemicycle-wrap" id="hemicycle"></div>
-      <div class="coalition-status" id="coalitionStatus" style="display:none"></div>
-      <div class="coalition-hint" id="coalitionHint">Dotknij partie, aby zbudować koalicję</div>
-      <div id="resultsChart"></div>
-      <div class="below-threshold-note" id="belowNote" style="display:none"></div>
+<div class="wrap">
+  <nav class="masthead" aria-label="Terra Cracovianum">
+    <a class="brand" href="https://terracracovianum.org" target="_blank" rel="noopener">
+      <svg class="sigil" viewBox="80 50 300 480" fill="currentColor" aria-hidden="true">
+<path stroke="currentColor" stroke-width="5.39" stroke-miterlimit="10" d="M224.79,248.34c.48.18,1.01.18,1.49,0h6.4c.48.18,1.01.18,1.49,0h1.28c27.39,0,55.1,11.02,77.2,28.1,25.55,19.75,43.66,48.3,49.99,80.06,2.22,11.15,2.28,20.66,2.24,31.7-.11,28.11-11.05,56.96-28.73,79.39-19.42,24.63-46.84,41.96-77.52,48.67-10.3,2.25-19.42,2.82-29.54,2.84-13.27.03-25.81-1.43-39.15-5.52-31.64-9.69-59.02-30.91-76.31-59.15-11.84-19.33-19.12-42.24-19.45-64.61v-1.92c.18-.55.18-1.15,0-1.71v-5.98c.18-.41.18-.87,0-1.28v-.64c.08-.37.15-.73.21-1.07-.24-17.89,5.07-36.79,12.97-53,21.59-44.28,67.04-74.75,115.71-75.89h1.71ZM214.61,330.42l2.71.24c2.09.18,4.12.33,6.19.24v-65.45c-.82-.13-1.47.39-2.05.91l-1.79,1.63c-3.63,3.31-5.34,4.9-8.73,8.51l-2.72,2.9c-11.96,12.76-21.14,27.75-27.98,44.1,11.31,3.58,22.63,5.89,34.37,6.93ZM250.39,279.03l-2.37-2.53c-1.95-2.08-3.94-4.11-6.04-6.05l-2.23-2.07-2.13-1.91c-.62-.56-1.32-1.11-2.16-1.03v65.46c2.09.1,3.87-.04,5.99-.22l3.16-.27c11.59-.99,22.88-3.3,34.12-6.9-6.9-16.48-16.21-31.55-28.32-44.48ZM141.09,305.09c8.76,5.67,18.08,10.47,27.99,14.44,7.55-18.16,18.04-34.46,31.08-48.83.67-.74,1.42-1.18,1.75-2.13-19.37,4.6-37.49,13.52-51.71,27.22l-4.14,3.99c-.39.37-.7.67-1.08,1.07l-3.24,3.35-.65.89ZM314.33,301.24c-.76-.78-1.28-1.67-2.22-2.14-1.11-1.18-2.14-2.2-3.36-3.3-14.68-13.22-32.31-22.63-51.73-27.24.65,1.24,1.65,1.99,2.58,3.03,12.68,14.16,22.88,30.15,30.28,47.93,9.87-3.96,19.12-8.71,27.95-14.41-.19-.43-.47-.68-.7-1.03l-2.8-2.85ZM156.58,374.15c-.27-1.24.05-2.18.11-3.34,1.05-13.73,3.89-27.15,8.21-40.21-11.17-4.46-21.54-9.89-31.31-16.27-13.03,18-20.62,39.1-22.14,61.17.19.83-.15,1.39-.18,2.16h45.07c-.07-1.35-.15-2.35.25-3.51ZM302.73,377.66h44.98c-.15-.95-.38-1.82-.14-2.8-.4-1.07-.18-2.04-.39-3.14-2.07-20.77-9.53-40.41-21.8-57.4-9.8,6.42-20.28,11.87-31.34,16.29,4.44,13.21,7.15,26.52,8.24,40.19.04,1.17.38,2.1.11,3.25.43,1.19.21,2.37.34,3.6ZM223.51,342.89c-1.08.09-1.75-.15-2.56-.21-1.29-.09-2.56.13-3.82-.3-1.07.22-1.94-.02-3.04-.12-12.96-1.13-25.65-3.71-38.02-7.67-4.03,11.96-6.46,24.05-7.56,36.45-.11,1.21.02,2.25-.33,3.4.12,1.11.12,2.14-.13,3.22h55.46s0-34.77,0-34.77ZM235.47,377.66h55.45c-.25-1.08-.25-2.11-.13-3.22-.34-1.15-.23-2.2-.33-3.4-1.1-12.4-3.53-24.48-7.55-36.45-12.37,3.95-25.06,6.55-38.02,7.66-1.1.09-1.97.34-3.04.12-1.26.44-2.52.21-3.82.31-.87.07-1.64.3-2.56.2l.02,34.78ZM156.76,398.74c-.06-1.05,0-1.7-.31-2.51.19-1.11-.11-2.13-.13-3.2l-.05-3.42h-45c.04.77.38,1.33.18,2.17,1.54,22.03,9.1,43.2,22.16,61.15,9.92-6.46,20.03-11.74,30.92-16.11-4.04-12.5-6.66-25.05-7.76-38.08ZM216.87,424.78c1.46-.1,2.67-.31,4.09-.12.84-.32,1.65-.27,2.55-.28v-34.78s-55.44,0-55.44,0c-.18.82,0,1.56.2,2.33-.15,1.49.02,2.77.14,4.31.97,12.41,3.33,24.58,7.25,36.55,13.53-4.35,27.2-7.01,41.19-8.02ZM290.36,398.4l.19-2.63c.09-1.27.35-2.51.12-3.83.23-.79.39-1.52.22-2.34h-55.43s0,34.77,0,34.77c.9,0,1.71-.03,2.55.28,1.5-.19,2.77.03,4.31.14,13.92,1.01,27.52,3.66,40.97,7.99,3.69-11.28,6.24-22.69,7.08-34.39ZM294.43,436.82c11.14,4.46,21.32,9.84,30.94,16.11,12.83-17.72,20.39-38.4,22.05-60.13.14-1.13-.01-2.09.29-3.19h-45.01s-.05,3.42-.05,3.42c-.02,1.07-.32,2.09-.12,3.2-.4.93-.18,1.78-.34,2.77-1.12,12.86-3.7,25.37-7.75,37.81ZM221.01,501.56l2.49.29v-65.48c-2.63-.26-3.95.33-6.19.13-.93.35-1.78.24-2.77.34-11.83,1.1-23.34,3.44-34.78,7.08,6.81,16.63,16.53,31.95,28.56,45.35.84.93,1.66,1.59,2.37,2.61,1.17,1.26,9.44,9.58,10.33,9.68ZM250.81,489.07c12.21-13.13,21.51-28.43,28.4-45.16-12.02-3.89-24.46-6.27-37.13-7.3-1.21-.1-2.26.05-3.41-.31l-3.21.06v65.53s2.5-.33,2.5-.33c.97-.13,9.05-8.41,10.28-9.74l2.57-2.76ZM146.1,467.53l3.89,3.73c14.08,13.5,31.88,22.44,50.67,27.13-13.69-14.94-24.53-32-32.04-50.49-9.7,3.98-18.79,8.62-27.5,14.25.75,1.14,1.69,2,2.63,2.95l2.35,2.43ZM313.82,466.57l3.19-3.29.84-1.12c-8.76-5.66-17.93-10.35-27.51-14.25-7.62,18.69-18.46,35.7-32.04,50.49,18.92-4.71,36.26-14.08,50.66-27.14l3.51-3.34c.46-.44.83-.82,1.34-1.35Z"/>
+<path d="M230.84,115.6l38.45,48.63c.09.11.17.22.26.32,9.02,10.91,24.01,17.16,41.14,17.16,12.51,0,24.01-3.36,32.91-9.34l-.08,25.68c-36.08-6.11-72.8-9.29-109.33-9.48-1.13,0-2.26,0-3.39,0-37.68,0-75.54,3.19-112.75,9.49l-.13-25.99c8.95,6.17,20.63,9.64,33.34,9.64,17.2,0,32.24-6.3,41.26-17.28.09-.11.18-.22.27-.33l38.06-48.51M230.78,84.9l-52.96,67.49c-5.68,6.92-16.1,10.34-26.58,10.34-11.3,0-22.68-3.97-28.3-11.82l-24.4-51.34.55,110.21c0,2.58,1.04,4.91,2.73,6.59,2.67,2.67,5.97,2.73,6.59,2.73,33.58-6.38,74.96-11.52,122.36-11.52,1.09,0,2.19,0,3.29,0,45.92.23,86.14,5.26,119.07,11.51,5.15,0,9.33-4.18,9.33-9.33l.36-110.21-23.76,51.26c-5.62,7.89-17.04,11.9-28.39,11.9-10.44,0-20.81-3.39-26.5-10.27l-53.41-67.55h0Z"/>
+<circle cx="230.78" cy="74.84" r="21.99"/>
+<path d="M230.78,141.59c-9.03,0-36,39.49-30.77,39.72.16,0,.48,0,.94-.02,19.88-.8,39.78-.8,59.66,0,.46.02.78.03.94.02,5.23-.23-21.74-39.72-30.77-39.72Z"/>
+<circle cx="355.76" cy="103.99" r="21.99"/>
+<circle cx="103.36" cy="103.99" r="21.99"/>
+<path d="M352.16,295.35c-34.63-38.61-78.62-59.64-122.62-59.45-44-.12-87.99,20.99-122.62,59.6-4.41,4.88-7.8,4.97-7.81-.18,0-.61,0-1.82,0-1.82.13-17.45.26-34.89.39-52.34.04-5.62,4.55-11.16,10.11-12.3,79.26-16.23,160.99-16.2,240.24.08,5.59,1.15,10.11,6.74,10.11,12.38,0,16.67,0,48.26,0,52.03v1.82c0,5.16-3.4,5.07-7.81.19Z"/>
+<path fill="var(--logo-cut, #fff)" d="M345.21,266.43v-23.35c-15.35-3.03-30.78-5.44-46.27-7.25,15.49,9.59,30.92,19.8,46.27,30.61Z"/>
+<path fill="var(--logo-cut, #fff)" d="M114.61,266.28v-23.35c15.35-3.01,30.79-5.4,46.27-7.2-15.49,9.57-30.93,19.76-46.27,30.55Z"/>
+</svg>
+      <span class="brand-name">Terra<br><i>Cracovianum</i></span>
+    </a>
+    <div class="mast-actions">
+      <button class="pill small" id="themeBtn" type="button" aria-label="Przełącz tryb nocny">Noc</button>
+      <a class="pill small" href="https://terracracovianum.org" target="_blank" rel="noopener">
+        <span class="site-long">terracracovianum.org</span><span class="site-short">Strona</span> <span class="arr" aria-hidden="true">↗</span>
+      </a>
     </div>
-  </div>
-
-  <div class="method-note">
-    Metoda D'Hondta · Próg 5% (partie) / 8% (koalicje)
-  </div>
+  </nav>
 </div>
 
-<!-- Sticky action dock -->
-<div class="action-dock">
-  <div class="action-dock-inner">
-    <div class="total-bar">
-      <span class="label">Suma poparcia</span>
-      <span class="value" id="totalPct">0%</span>
-    </div>
-    <button class="show-results-btn" id="showResultsBtn">Pokaż wyniki</button>
+<header class="hero">
+  <div class="contour-sheet" id="contourSheet" aria-hidden="true">
+    <canvas id="contour"></canvas>
+    <div class="station" id="station"><span class="mono">Kraków · 219 m · Wisła</span></div>
   </div>
+  <div class="wrap hero-inner">
+    <div class="kicker mono"><span class="rule"></span>01 — Narzędzie · Sejm RP</div>
+    <h1 class="title" aria-label="Kalkulator sejmowy">
+      <span class="line" aria-hidden="true"><span>Kalkulator</span></span>
+      <span class="line" aria-hidden="true"><span><i>sejmowy</i></span></span>
+    </h1>
+    <div class="hero-foot">
+      <p class="lede">Wpisz poparcie w procentach i zobacz, jak rozkładają się mandaty w Sejmie. Potem złóż koalicję i sprawdź, czy ma większość.</p>
+      <dl class="readout mono">
+        <dt>Mandaty</dt><dd>460</dd>
+        <dt>Większość</dt><dd>231</dd>
+        <dt>Próg</dt><dd>5% · 8% koalicje</dd>
+        <dt>Metoda</dt><dd>D'Hondta</dd>
+      </dl>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="section join" id="parties" aria-labelledby="partiesTitle">
+    <div class="wrap">
+      <div class="sect-head">
+        <div class="kicker mono"><span class="diamond"></span>02 — Ugrupowania</div>
+        <h2 class="sect-title" id="partiesTitle">Partie i <i>koalicje</i></h2>
+        <div class="sect-note mono"><span id="partyCount">Rejestr</span><span>Poparcie w %</span></div>
+      </div>
+      <div class="register-col">
+        <div class="register" id="partyList"></div>
+        <div class="reg-actions">
+          <button class="pill" id="addPartyBtn" type="button">+ Dodaj ugrupowanie</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band section" id="resultsSection" aria-labelledby="resultsTitle" hidden>
+    <div class="wrap">
+      <div class="sect-head">
+        <div class="kicker mono"><span class="diamond"></span>03 — Wynik</div>
+        <h2 class="sect-title" id="resultsTitle">Podział <i>mandatów</i></h2>
+        <div class="sect-note mono"><span id="totalSeats">460 mandatów</span><span>Większość 231</span></div>
+      </div>
+      <div class="chamber-grid">
+        <div class="chamber" id="hemicycle" role="img" aria-label="Rozkład mandatów w Sejmie"></div>
+        <div>
+          <div class="coalition-box" id="coalitionBox" aria-live="polite"></div>
+          <div id="resultsChart"></div>
+          <p class="band-note mono" id="belowNote" hidden></p>
+          <p class="band-note mono">Metoda D'Hondta · próg 5% partie / 8% koalicje</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="foot-grid">
+      <a class="foot-brand" href="https://terracracovianum.org" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">
+        <svg class="sigil" viewBox="80 50 300 480" fill="currentColor" aria-hidden="true">
+<path stroke="currentColor" stroke-width="5.39" stroke-miterlimit="10" d="M224.79,248.34c.48.18,1.01.18,1.49,0h6.4c.48.18,1.01.18,1.49,0h1.28c27.39,0,55.1,11.02,77.2,28.1,25.55,19.75,43.66,48.3,49.99,80.06,2.22,11.15,2.28,20.66,2.24,31.7-.11,28.11-11.05,56.96-28.73,79.39-19.42,24.63-46.84,41.96-77.52,48.67-10.3,2.25-19.42,2.82-29.54,2.84-13.27.03-25.81-1.43-39.15-5.52-31.64-9.69-59.02-30.91-76.31-59.15-11.84-19.33-19.12-42.24-19.45-64.61v-1.92c.18-.55.18-1.15,0-1.71v-5.98c.18-.41.18-.87,0-1.28v-.64c.08-.37.15-.73.21-1.07-.24-17.89,5.07-36.79,12.97-53,21.59-44.28,67.04-74.75,115.71-75.89h1.71ZM214.61,330.42l2.71.24c2.09.18,4.12.33,6.19.24v-65.45c-.82-.13-1.47.39-2.05.91l-1.79,1.63c-3.63,3.31-5.34,4.9-8.73,8.51l-2.72,2.9c-11.96,12.76-21.14,27.75-27.98,44.1,11.31,3.58,22.63,5.89,34.37,6.93ZM250.39,279.03l-2.37-2.53c-1.95-2.08-3.94-4.11-6.04-6.05l-2.23-2.07-2.13-1.91c-.62-.56-1.32-1.11-2.16-1.03v65.46c2.09.1,3.87-.04,5.99-.22l3.16-.27c11.59-.99,22.88-3.3,34.12-6.9-6.9-16.48-16.21-31.55-28.32-44.48ZM141.09,305.09c8.76,5.67,18.08,10.47,27.99,14.44,7.55-18.16,18.04-34.46,31.08-48.83.67-.74,1.42-1.18,1.75-2.13-19.37,4.6-37.49,13.52-51.71,27.22l-4.14,3.99c-.39.37-.7.67-1.08,1.07l-3.24,3.35-.65.89ZM314.33,301.24c-.76-.78-1.28-1.67-2.22-2.14-1.11-1.18-2.14-2.2-3.36-3.3-14.68-13.22-32.31-22.63-51.73-27.24.65,1.24,1.65,1.99,2.58,3.03,12.68,14.16,22.88,30.15,30.28,47.93,9.87-3.96,19.12-8.71,27.95-14.41-.19-.43-.47-.68-.7-1.03l-2.8-2.85ZM156.58,374.15c-.27-1.24.05-2.18.11-3.34,1.05-13.73,3.89-27.15,8.21-40.21-11.17-4.46-21.54-9.89-31.31-16.27-13.03,18-20.62,39.1-22.14,61.17.19.83-.15,1.39-.18,2.16h45.07c-.07-1.35-.15-2.35.25-3.51ZM302.73,377.66h44.98c-.15-.95-.38-1.82-.14-2.8-.4-1.07-.18-2.04-.39-3.14-2.07-20.77-9.53-40.41-21.8-57.4-9.8,6.42-20.28,11.87-31.34,16.29,4.44,13.21,7.15,26.52,8.24,40.19.04,1.17.38,2.1.11,3.25.43,1.19.21,2.37.34,3.6ZM223.51,342.89c-1.08.09-1.75-.15-2.56-.21-1.29-.09-2.56.13-3.82-.3-1.07.22-1.94-.02-3.04-.12-12.96-1.13-25.65-3.71-38.02-7.67-4.03,11.96-6.46,24.05-7.56,36.45-.11,1.21.02,2.25-.33,3.4.12,1.11.12,2.14-.13,3.22h55.46s0-34.77,0-34.77ZM235.47,377.66h55.45c-.25-1.08-.25-2.11-.13-3.22-.34-1.15-.23-2.2-.33-3.4-1.1-12.4-3.53-24.48-7.55-36.45-12.37,3.95-25.06,6.55-38.02,7.66-1.1.09-1.97.34-3.04.12-1.26.44-2.52.21-3.82.31-.87.07-1.64.3-2.56.2l.02,34.78ZM156.76,398.74c-.06-1.05,0-1.7-.31-2.51.19-1.11-.11-2.13-.13-3.2l-.05-3.42h-45c.04.77.38,1.33.18,2.17,1.54,22.03,9.1,43.2,22.16,61.15,9.92-6.46,20.03-11.74,30.92-16.11-4.04-12.5-6.66-25.05-7.76-38.08ZM216.87,424.78c1.46-.1,2.67-.31,4.09-.12.84-.32,1.65-.27,2.55-.28v-34.78s-55.44,0-55.44,0c-.18.82,0,1.56.2,2.33-.15,1.49.02,2.77.14,4.31.97,12.41,3.33,24.58,7.25,36.55,13.53-4.35,27.2-7.01,41.19-8.02ZM290.36,398.4l.19-2.63c.09-1.27.35-2.51.12-3.83.23-.79.39-1.52.22-2.34h-55.43s0,34.77,0,34.77c.9,0,1.71-.03,2.55.28,1.5-.19,2.77.03,4.31.14,13.92,1.01,27.52,3.66,40.97,7.99,3.69-11.28,6.24-22.69,7.08-34.39ZM294.43,436.82c11.14,4.46,21.32,9.84,30.94,16.11,12.83-17.72,20.39-38.4,22.05-60.13.14-1.13-.01-2.09.29-3.19h-45.01s-.05,3.42-.05,3.42c-.02,1.07-.32,2.09-.12,3.2-.4.93-.18,1.78-.34,2.77-1.12,12.86-3.7,25.37-7.75,37.81ZM221.01,501.56l2.49.29v-65.48c-2.63-.26-3.95.33-6.19.13-.93.35-1.78.24-2.77.34-11.83,1.1-23.34,3.44-34.78,7.08,6.81,16.63,16.53,31.95,28.56,45.35.84.93,1.66,1.59,2.37,2.61,1.17,1.26,9.44,9.58,10.33,9.68ZM250.81,489.07c12.21-13.13,21.51-28.43,28.4-45.16-12.02-3.89-24.46-6.27-37.13-7.3-1.21-.1-2.26.05-3.41-.31l-3.21.06v65.53s2.5-.33,2.5-.33c.97-.13,9.05-8.41,10.28-9.74l2.57-2.76ZM146.1,467.53l3.89,3.73c14.08,13.5,31.88,22.44,50.67,27.13-13.69-14.94-24.53-32-32.04-50.49-9.7,3.98-18.79,8.62-27.5,14.25.75,1.14,1.69,2,2.63,2.95l2.35,2.43ZM313.82,466.57l3.19-3.29.84-1.12c-8.76-5.66-17.93-10.35-27.51-14.25-7.62,18.69-18.46,35.7-32.04,50.49,18.92-4.71,36.26-14.08,50.66-27.14l3.51-3.34c.46-.44.83-.82,1.34-1.35Z"/>
+<path d="M230.84,115.6l38.45,48.63c.09.11.17.22.26.32,9.02,10.91,24.01,17.16,41.14,17.16,12.51,0,24.01-3.36,32.91-9.34l-.08,25.68c-36.08-6.11-72.8-9.29-109.33-9.48-1.13,0-2.26,0-3.39,0-37.68,0-75.54,3.19-112.75,9.49l-.13-25.99c8.95,6.17,20.63,9.64,33.34,9.64,17.2,0,32.24-6.3,41.26-17.28.09-.11.18-.22.27-.33l38.06-48.51M230.78,84.9l-52.96,67.49c-5.68,6.92-16.1,10.34-26.58,10.34-11.3,0-22.68-3.97-28.3-11.82l-24.4-51.34.55,110.21c0,2.58,1.04,4.91,2.73,6.59,2.67,2.67,5.97,2.73,6.59,2.73,33.58-6.38,74.96-11.52,122.36-11.52,1.09,0,2.19,0,3.29,0,45.92.23,86.14,5.26,119.07,11.51,5.15,0,9.33-4.18,9.33-9.33l.36-110.21-23.76,51.26c-5.62,7.89-17.04,11.9-28.39,11.9-10.44,0-20.81-3.39-26.5-10.27l-53.41-67.55h0Z"/>
+<circle cx="230.78" cy="74.84" r="21.99"/>
+<path d="M230.78,141.59c-9.03,0-36,39.49-30.77,39.72.16,0,.48,0,.94-.02,19.88-.8,39.78-.8,59.66,0,.46.02.78.03.94.02,5.23-.23-21.74-39.72-30.77-39.72Z"/>
+<circle cx="355.76" cy="103.99" r="21.99"/>
+<circle cx="103.36" cy="103.99" r="21.99"/>
+<path d="M352.16,295.35c-34.63-38.61-78.62-59.64-122.62-59.45-44-.12-87.99,20.99-122.62,59.6-4.41,4.88-7.8,4.97-7.81-.18,0-.61,0-1.82,0-1.82.13-17.45.26-34.89.39-52.34.04-5.62,4.55-11.16,10.11-12.3,79.26-16.23,160.99-16.2,240.24.08,5.59,1.15,10.11,6.74,10.11,12.38,0,16.67,0,48.26,0,52.03v1.82c0,5.16-3.4,5.07-7.81.19Z"/>
+<path fill="var(--logo-cut, #fff)" d="M345.21,266.43v-23.35c-15.35-3.03-30.78-5.44-46.27-7.25,15.49,9.59,30.92,19.8,46.27,30.61Z"/>
+<path fill="var(--logo-cut, #fff)" d="M114.61,266.28v-23.35c15.35-3.01,30.79-5.4,46.27-7.2-15.49,9.57-30.93,19.76-46.27,30.55Z"/>
+</svg>
+        <p class="foot-title">Projekt stowarzyszenia <i>Terra Cracovianum.</i> <span aria-hidden="true">↗</span></p>
+      </a>
+      <p class="foot-meta mono">
+        Stowarzyszenie · KRS 0001270725<br>
+        Kraków · 50°03′N 19°56′E<br>
+        <a href="https://terracracovianum.org" target="_blank" rel="noopener">terracracovianum.org</a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<div class="dock" role="region" aria-label="Podsumowanie">
+  <span class="diamond" aria-hidden="true"></span>
+  <span class="dock-label mono">Suma</span>
+  <span class="dock-value" id="totalPct" aria-live="polite">0%</span>
+  <button class="dock-btn" id="showResultsBtn" type="button">Przelicz <span class="arr" aria-hidden="true">↓</span></button>
 </div>
 
 <script>
@@ -661,6 +847,7 @@ const MAJORITY = Math.floor(TOTAL_SEATS / 2) + 1; // 231
 let coalition = new Set();
 let lastSorted = [];
 let lastSeats = new Map();
+let lastAssigned = 0;
 
 const PARTY_COLORS = {
   'PiS': '#263672',
@@ -709,6 +896,11 @@ let parties = [
   { name: 'Centrum', pct: 2, coalition: false, color: PARTY_COLORS['Centrum'] },
 ];
 
+const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const fmtPct = v => v.toLocaleString('pl-PL', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const thresholdOf = p => p.coalition ? COALITION_THRESHOLD : PARTY_THRESHOLD;
+
 function dhondt(validParties, totalSeats) {
   const seats = new Map();
   validParties.forEach(p => seats.set(p.name, 0));
@@ -729,82 +921,58 @@ function dhondt(validParties, totalSeats) {
   return seats;
 }
 
-function renderHemicycle(sorted) {
+// ---------- The chamber: 460 dots in a hemicycle ----------
+const CHAMBER = (() => {
+  const W = 420, cx = W / 2, cy = 214, rOut = 200, rIn = 84, ROWS = 11;
+  const radii = Array.from({ length: ROWS }, (_, i) => rIn + (rOut - rIn) * i / (ROWS - 1));
+  const sumR = radii.reduce((a, b) => a + b, 0);
+  const counts = radii.map(r => Math.round(TOTAL_SEATS * r / sumR));
+  counts[ROWS - 1] += TOTAL_SEATS - counts.reduce((a, b) => a + b, 0);
+  const seats = [];
+  radii.forEach((r, i) => {
+    const n = counts[i];
+    for (let j = 0; j < n; j++) {
+      const a = Math.PI * (1 - j / (n - 1));
+      seats.push({ a, x: cx + r * Math.cos(a), y: cy - r * Math.sin(a) });
+    }
+  });
+  // Left to right, so blocs fill the chamber as wedges.
+  seats.sort((p, q) => q.a - p.a);
+  return { W, cx, cy, rOut, rIn, seats, dot: 4.3 };
+})();
+
+function renderHemicycle(sorted, animate = false) {
   const container = document.getElementById('hemicycle');
-  const majority = MAJORITY;
+  const { W, cx, cy, rOut, rIn, seats, dot } = CHAMBER;
 
-  if (sorted.length === 0) { container.innerHTML = ''; return; }
+  const owners = [];
+  for (const [name, n] of sorted) for (let i = 0; i < n; i++) owners.push(name);
 
-  const totalSeats = sorted.reduce((s, [, v]) => s + v, 0);
-  if (totalSeats === 0) { container.innerHTML = ''; return; }
+  let svg = `<svg viewBox="0 -26 ${W} ${cy + 34}" xmlns="http://www.w3.org/2000/svg">`;
+  seats.forEach((s, i) => {
+    const name = owners[i];
+    const party = name ? parties.find(p => p.name === name) : null;
+    const fill = party ? party.color : 'rgba(243,238,227,.14)';
+    const op = !name || coalition.size === 0 || coalition.has(name) ? 1 : 0.22;
+    // Seats fill in once per result; coalition taps only change opacity.
+    const anim = animate && !REDUCED_MOTION ? ` class="seat" style="animation-delay:${(i * 1.6).toFixed(0)}ms"` : '';
+    svg += `<circle${anim} cx="${s.x.toFixed(1)}" cy="${s.y.toFixed(1)}" r="${dot}" fill="${fill}" stroke="rgba(243,238,227,.28)" stroke-width=".6" opacity="${op}"/>`;
+  });
 
-  const W = 400, H = 215;
-  const cx = W / 2, cy = H - 5;
-  const outerR = 195, innerR = 95, gap = 0.008;
+  // Majority marker at the 231st seat.
+  const m = seats[MAJORITY - 1].a;
+  const x1 = cx + (rIn - 12) * Math.cos(m), y1 = cy - (rIn - 12) * Math.sin(m);
+  const x2 = cx + (rOut + 10) * Math.cos(m), y2 = cy - (rOut + 10) * Math.sin(m);
+  svg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#D9A06B" stroke-width="1.2" stroke-dasharray="3 4"/>`;
+  svg += `<rect x="${x2 - 3.5}" y="${y2 - 17}" width="7" height="7" fill="#D9A06B" transform="rotate(45 ${x2} ${y2 - 13.5})"/>`;
+  svg += `<text x="${x2}" y="${y2 - 26}" text-anchor="middle" fill="rgba(243,238,227,.66)" font-family="'Spline Sans Mono',ui-monospace,monospace" font-size="9.5" letter-spacing="1.3">WIĘKSZOŚĆ ${MAJORITY}</text>`;
 
-  let svg = `<svg viewBox="0 -22 ${W} ${H + 22}" xmlns="http://www.w3.org/2000/svg">`;
-
-  let currentAngle = Math.PI;
-
-  for (const [name, seats] of sorted) {
-    if (seats === 0) continue;
-    const party = parties.find(p => p.name === name);
-    const color = party?.color || '#888';
-    const sweep = (seats / totalSeats) * Math.PI;
-
-    const a1 = currentAngle - gap;
-    const a2 = currentAngle - sweep + gap;
-
-    if (a1 <= a2) { currentAngle -= sweep; continue; }
-
-    const ox1 = cx + outerR * Math.cos(a1);
-    const oy1 = cy - outerR * Math.sin(a1);
-    const ox2 = cx + outerR * Math.cos(a2);
-    const oy2 = cy - outerR * Math.sin(a2);
-    const ix1 = cx + innerR * Math.cos(a2);
-    const iy1 = cy - innerR * Math.sin(a2);
-    const ix2 = cx + innerR * Math.cos(a1);
-    const iy2 = cy - innerR * Math.sin(a1);
-
-    const large = sweep - 2 * gap > Math.PI ? 1 : 0;
-
-    const d = [
-      `M ${ox1} ${oy1}`,
-      `A ${outerR} ${outerR} 0 ${large} 1 ${ox2} ${oy2}`,
-      `L ${ix1} ${iy1}`,
-      `A ${innerR} ${innerR} 0 ${large} 0 ${ix2} ${iy2}`,
-      'Z'
-    ].join(' ');
-
-    const op = coalition.size === 0 || coalition.has(name) ? 1 : 0.28;
-    svg += `<path d="${d}" fill="${color}" fill-opacity="${op}" style="transition:fill-opacity .3s"/>`;
-
-    currentAngle -= sweep;
-  }
-
-  // Majority threshold marker — the line splitting the hemicycle at 231 of 460.
-  const majAngle = Math.PI - (majority / totalSeats) * Math.PI;
-  const mx1 = cx + (innerR - 8) * Math.cos(majAngle);
-  const my1 = cy - (innerR - 8) * Math.sin(majAngle);
-  const mx2 = cx + (outerR + 8) * Math.cos(majAngle);
-  const my2 = cy - (outerR + 8) * Math.sin(majAngle);
-  svg += `<line x1="${mx1}" y1="${my1}" x2="${mx2}" y2="${my2}"
-    stroke="var(--text)" stroke-width="2.2" stroke-dasharray="5,4" stroke-linecap="round" opacity="0.55"/>`;
-  const lx = cx + (outerR + 22) * Math.cos(majAngle);
-  const ly = cy - (outerR + 22) * Math.sin(majAngle);
-  svg += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle"
-    fill="var(--text-secondary)" font-family="-apple-system,Inter,sans-serif" font-size="10.5" font-weight="700">większość ${majority}</text>`;
-
-  svg += `<text x="${cx}" y="${cy - 6}" text-anchor="middle" dominant-baseline="auto"
-    fill="var(--text)" font-family="-apple-system,Inter,sans-serif" font-size="17" font-weight="800" letter-spacing="-0.5">${totalSeats}</text>`;
-  svg += `<text x="${cx}" y="${cy + 8}" text-anchor="middle" dominant-baseline="auto"
-    fill="var(--text-secondary)" font-family="-apple-system,Inter,sans-serif" font-size="9" font-weight="600">mandatów</text>`;
-
+  const centre = coalition.size ? coalitionSum() : lastAssigned;
+  svg += `<text x="${cx}" y="${cy - 14}" text-anchor="middle" fill="#F3EEE3" font-family="Fraunces,Georgia,serif" font-weight="300" font-size="46" letter-spacing="-1.5">${centre}</text>`;
+  svg += `<text x="${cx}" y="${cy + 6}" text-anchor="middle" fill="rgba(243,238,227,.66)" font-family="'Spline Sans Mono',ui-monospace,monospace" font-size="9.5" letter-spacing="1.3">${coalition.size ? 'KOALICJA' : 'MANDATÓW'}</text>`;
   svg += '</svg>';
   container.innerHTML = svg;
 }
-
-const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // Smoothly counts an element's text from `start` to `end`, formatting each frame.
 function animateCount(el, start, end, format, duration = 900) {
@@ -825,59 +993,57 @@ function animateCount(el, start, end, format, duration = 900) {
 }
 
 function hideResults() {
-  document.getElementById('resultsSection').style.display = 'none';
-  document.getElementById('showResultsBtn').style.display = '';
+  document.getElementById('resultsSection').hidden = true;
 }
 
 function updateTotal() {
   const total = parties.reduce((s, p) => s + p.pct, 0);
   const totalEl = document.getElementById('totalPct');
-  totalEl.textContent = total.toFixed(1) + '%';
+  totalEl.textContent = fmtPct(total);
   totalEl.classList.toggle('over', total > 100);
 
   const btn = document.getElementById('showResultsBtn');
   if (total > 100) {
     btn.disabled = true;
-    btn.textContent = 'Suma przekracza 100%';
+    btn.textContent = 'Ponad 100%';
   } else {
     btn.disabled = false;
-    btn.textContent = 'Pokaż wyniki';
+    btn.innerHTML = 'Przelicz <span class="arr" aria-hidden="true">↓</span>';
   }
 
-  parties.forEach((p, i) => {
-    const card = document.querySelectorAll('.party-card')[i];
-    if (card) {
-      const threshold = p.coalition ? COALITION_THRESHOLD : PARTY_THRESHOLD;
-      card.classList.toggle('below-threshold', p.pct > 0 && p.pct < threshold);
-    }
+  document.querySelectorAll('.reg-row').forEach((row, i) => {
+    const p = parties[i];
+    if (p) row.classList.toggle('below', p.pct > 0 && p.pct < thresholdOf(p));
   });
+
+  document.getElementById('partyCount').textContent =
+    `Rejestr · ${parties.length} ${parties.length === 1 ? 'pozycja' : (parties.length % 10 >= 2 && parties.length % 10 <= 4 && (parties.length < 12 || parties.length > 14)) ? 'pozycje' : 'pozycji'}`;
 }
 
 function showResults() {
   const total = parties.reduce((s, p) => s + p.pct, 0);
   if (total > 100) return;
 
-  const validParties = parties.filter(p => {
-    const threshold = p.coalition ? COALITION_THRESHOLD : PARTY_THRESHOLD;
-    return p.pct >= threshold;
-  });
-
-  const belowParties = parties.filter(p => {
-    const threshold = p.coalition ? COALITION_THRESHOLD : PARTY_THRESHOLD;
-    return p.pct > 0 && p.pct < threshold;
-  });
+  const validParties = parties.filter(p => p.pct >= thresholdOf(p));
+  const belowParties = parties.filter(p => p.pct > 0 && p.pct < thresholdOf(p));
 
   const seats = validParties.length > 0 ? dhondt(validParties, TOTAL_SEATS) : new Map();
   const assignedSeats = Array.from(seats.values()).reduce((a, b) => a + b, 0);
-
   const sorted = [...seats.entries()].sort((a, b) => b[1] - a[1]);
 
   // Reset the coalition builder for this fresh result set.
   coalition = new Set();
   lastSorted = sorted;
   lastSeats = seats;
+  lastAssigned = assignedSeats;
 
-  renderHemicycle(sorted);
+  const section = document.getElementById('resultsSection');
+  section.hidden = false;
+  section.classList.remove('entering');
+  void section.offsetWidth;
+  section.classList.add('entering');
+
+  renderHemicycle(sorted, true);
 
   const chart = document.getElementById('resultsChart');
   chart.innerHTML = '';
@@ -885,69 +1051,66 @@ function showResults() {
   const maxSeats = Math.max(...Array.from(seats.values()), 1);
   const animatedEls = [];
 
-  for (const [name, s] of sorted) {
+  sorted.forEach(([name, s], i) => {
     const party = parties.find(p => p.name === name);
-    const pctOfTotal = validParties.length > 0
-      ? ((s / TOTAL_SEATS) * 100).toFixed(1)
-      : '0.0';
+    const pctOfTotal = ((s / TOTAL_SEATS) * 100).toLocaleString('pl-PL', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
     const row = document.createElement('div');
-    row.className = 'result-row';
+    row.className = 'res-row';
     row.dataset.name = name;
     row.setAttribute('role', 'button');
+    row.setAttribute('tabindex', '0');
     row.setAttribute('aria-pressed', 'false');
-    row.title = 'Dotknij, aby dodać do koalicji';
-
-    const barWidth = maxSeats > 0 ? (s / maxSeats) * 100 : 0;
-    const sn = shortName(name);
+    row.setAttribute('aria-label', `${name}: ${s} mandatów. Dodaj do koalicji`);
+    row.style.animationDelay = (i * 0.06) + 's';
 
     row.innerHTML = `
-      <div class="result-name">${sn}</div>
-      <div class="result-bar-wrap">
-        <div class="result-bar" style="width:0%;background:${party?.color || '#888'}">
-          ${s > 15 ? `<span class="result-bar-label">0</span>` : ''}
-        </div>
-      </div>
-      <div class="result-seats">0</div>
-      <div class="result-pct">${pctOfTotal}%</div>
+      <div class="res-name"><span class="diamond" aria-hidden="true"></span>${esc(shortName(name))}</div>
+      <div class="res-track"><div class="res-bar" style="background:${party?.color || '#888'}"></div></div>
+      <div class="res-seats">0</div>
+      <div class="res-pct mono">${pctOfTotal}%</div>
     `;
     row.addEventListener('click', () => toggleCoalition(name));
+    row.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleCoalition(name); }
+    });
     chart.appendChild(row);
 
-    const bar = row.querySelector('.result-bar');
-    const seatEl = row.querySelector('.result-seats');
-    const labelEl = row.querySelector('.result-bar-label');
-    animatedEls.push({ bar, seatEl, labelEl, target: s, barWidth });
-  }
+    animatedEls.push({
+      bar: row.querySelector('.res-bar'),
+      seatEl: row.querySelector('.res-seats'),
+      target: s,
+      barWidth: (s / maxSeats) * 100,
+    });
+  });
 
-  // Animate the totalSeats header counter + each row's bar fill and seat count.
   const totalSeatsEl = document.getElementById('totalSeats');
   animateCount(totalSeatsEl, 0, assignedSeats, v => v + ' / ' + TOTAL_SEATS + ' mandatów');
   requestAnimationFrame(() => {
-    animatedEls.forEach(({ bar, seatEl, labelEl, target, barWidth }) => {
+    animatedEls.forEach(({ bar, seatEl, target, barWidth }) => {
       bar.style.width = barWidth + '%';
       animateCount(seatEl, 0, target, v => '' + v);
-      if (labelEl) animateCount(labelEl, 0, target, v => '' + v);
     });
   });
 
   const belowNote = document.getElementById('belowNote');
   if (belowParties.length > 0) {
-    const names = belowParties.map(p => {
-      const t = p.coalition ? COALITION_THRESHOLD : PARTY_THRESHOLD;
-      return `${shortName(p.name)} (${p.pct}% < ${t}%)`;
-    }).join(', ');
-    belowNote.style.display = 'block';
-    belowNote.textContent = 'Poniżej progu: ' + names;
+    belowNote.hidden = false;
+    belowNote.textContent = 'Pod progiem · ' + belowParties
+      .map(p => `${shortName(p.name)} ${fmtPct(p.pct)} < ${thresholdOf(p)}%`)
+      .join(' · ');
   } else {
-    belowNote.style.display = 'none';
+    belowNote.hidden = true;
   }
 
   updateCoalition();
+  section.scrollIntoView({ behavior: REDUCED_MOTION ? 'auto' : 'smooth', block: 'start' });
+}
 
-  document.getElementById('resultsSection').style.display = '';
-  document.getElementById('showResultsBtn').style.display = 'none';
-  document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+function coalitionSum() {
+  let sum = 0;
+  coalition.forEach(n => { sum += (lastSeats.get(n) || 0); });
+  return sum;
 }
 
 function toggleCoalition(name) {
@@ -958,46 +1121,34 @@ function toggleCoalition(name) {
 }
 
 function updateCoalition() {
-  const statusEl = document.getElementById('coalitionStatus');
-  const hintEl = document.getElementById('coalitionHint');
+  const box = document.getElementById('coalitionBox');
 
-  // Reflect selection on each row.
-  document.querySelectorAll('.result-row').forEach(row => {
+  document.querySelectorAll('.res-row').forEach(row => {
     const sel = coalition.has(row.dataset.name);
-    row.classList.toggle('selected', sel);
     row.classList.toggle('dimmed', coalition.size > 0 && !sel);
     row.setAttribute('aria-pressed', sel ? 'true' : 'false');
   });
 
-  if (coalition.size === 0) {
-    const hasRows = document.querySelectorAll('.result-row').length > 0;
-    statusEl.style.display = 'none';
-    hintEl.style.display = hasRows ? '' : 'none';
+  if (lastSorted.length === 0) {
+    box.innerHTML = `<div class="cb-count">0</div><div class="cb-msg mono">Żadne ugrupowanie nie przekroczyło progu</div>`;
     return;
   }
 
-  let sum = 0;
-  coalition.forEach(n => { sum += (lastSeats.get(n) || 0); });
-  const reached = sum >= MAJORITY;
-  const diff = Math.abs(sum - MAJORITY);
-
-  let msg;
-  if (reached) {
-    msg = sum === MAJORITY ? '✓ Większość osiągnięta' : `✓ Większość +${diff}`;
-  } else {
-    msg = `Brakuje ${diff} mandatów`;
+  if (coalition.size === 0) {
+    box.innerHTML = `<div class="cb-count">${lastAssigned}<small>/ ${TOTAL_SEATS}</small></div>
+      <div class="cb-msg mono">Dotknij ugrupowanie, by złożyć koalicję</div>`;
+    return;
   }
 
-  statusEl.className = 'coalition-status' + (reached ? ' reached' : '');
-  statusEl.innerHTML = `
-    <div class="cs-left">
-      <span class="cs-count">${sum}</span>
-      <span class="cs-sep">/ ${MAJORITY} do większości</span>
-    </div>
-    <div class="cs-msg">${msg}</div>
-  `;
-  statusEl.style.display = '';
-  hintEl.style.display = 'none';
+  const sum = coalitionSum();
+  const reached = sum >= MAJORITY;
+  const diff = Math.abs(sum - MAJORITY);
+  const msg = reached
+    ? (sum === MAJORITY ? 'Większość osiągnięta' : `Większość · zapas ${diff}`)
+    : `Brakuje ${diff} ${diff === 1 ? 'mandatu' : 'mandatów'}`;
+
+  box.innerHTML = `<div class="cb-count">${sum}<small>/ ${MAJORITY}</small></div>
+    <div class="cb-msg mono${reached ? ' reached' : ''}">${msg}</div>`;
 }
 
 function render() {
@@ -1005,63 +1156,56 @@ function render() {
   list.innerHTML = '';
 
   parties.forEach((party, i) => {
-    const card = document.createElement('div');
-    card.className = 'party-card';
-    card.style.animationDelay = (i * 0.04) + 's';
+    const row = document.createElement('div');
+    row.className = 'reg-row';
+    row.style.animationDelay = (i * 0.06) + 's';
+    const threshold = thresholdOf(party);
+    if (party.pct > 0 && party.pct < threshold) row.classList.add('below');
 
-    const threshold = party.coalition ? COALITION_THRESHOLD : PARTY_THRESHOLD;
-    if (party.pct > 0 && party.pct < threshold) {
-      card.classList.add('below-threshold');
-    }
-
-    card.innerHTML = `
-      <div class="party-color" style="background:${party.color};color:${party.color}"></div>
-      <div class="party-info">
-        <div class="party-top-row">
-          <input class="party-name" type="text" value="${party.name}" data-idx="${i}" />
-          <div class="coalition-badge ${party.coalition ? 'active' : ''}" data-idx="${i}" title="Koalicja = próg 8%">
-            ${party.coalition ? 'Koalicja' : 'Partia'}
-          </div>
+    const ref = 'P.' + String(i + 1).padStart(2, '0');
+    row.innerHTML = `
+        <div class="reg-name-line">
+          <span class="swatch" style="background:${party.color}" aria-hidden="true"></span>
+          <input class="party-name" type="text" enterkeyhint="done" autocomplete="off" autocapitalize="words" value="${esc(party.name)}" data-idx="${i}" aria-label="Nazwa ugrupowania ${ref}" />
         </div>
-        <div class="party-bottom-row">
-          <span class="threshold-label">próg ${threshold}%</span>
-          <div class="pct-input-wrap">
-            <input class="pct-input" type="number" inputmode="decimal" min="0" max="100" step="0.1" value="${party.pct}" data-idx="${i}" />
-            <span class="pct-symbol">%</span>
-          </div>
+        <div class="reg-meta mono">
+          <span class="reg-ref">${ref}</span>
+          <button class="type-chip" type="button" data-idx="${i}" aria-pressed="${party.coalition}" title="Koalicja ma próg 8%">${party.coalition ? 'Koalicja' : 'Partia'}</button>
+          <span>Próg ${threshold}%</span>
+          <span class="under-flag">Pod progiem</span>
         </div>
-      </div>
-      <button class="remove-btn" data-idx="${i}" title="Usuń">&times;</button>
+      <label class="pct-field">
+        <input class="pct-input" type="text" inputmode="decimal" enterkeyhint="done" autocomplete="off" value="${String(party.pct).replace('.', ',')}" data-idx="${i}" aria-label="Poparcie ${esc(party.name)} w procentach" />
+        <span class="pct-sym" aria-hidden="true">%</span>
+      </label>
+      <button class="remove-btn" type="button" data-idx="${i}" aria-label="Usuń ${esc(party.name)}">&times;</button>
     `;
 
-    list.appendChild(card);
+    list.appendChild(row);
   });
 
   list.querySelectorAll('.pct-input').forEach(input => {
     input.addEventListener('input', (e) => {
-      const idx = parseInt(e.target.dataset.idx);
-      const val = parseFloat(e.target.value) || 0;
+      const idx = parseInt(e.currentTarget.dataset.idx);
+      const val = parseFloat(e.currentTarget.value.replace(',', '.')) || 0;
       parties[idx].pct = Math.min(100, Math.max(0, val));
       hideResults();
       updateTotal();
     });
-
-    input.addEventListener('focus', (e) => {
-      e.target.select();
-    });
+    input.addEventListener('focus', (e) => e.currentTarget.select());
   });
 
   list.querySelectorAll('.party-name').forEach(input => {
     input.addEventListener('change', (e) => {
-      const idx = parseInt(e.target.dataset.idx);
-      parties[idx].name = e.target.value.trim() || 'Partia';
+      const idx = parseInt(e.currentTarget.dataset.idx);
+      parties[idx].name = e.currentTarget.value.trim() || 'Partia';
       hideResults();
     });
   });
 
-  list.querySelectorAll('.coalition-badge').forEach(badge => {
-    badge.addEventListener('click', (e) => {
-      const idx = parseInt(e.target.dataset.idx);
+  list.querySelectorAll('.type-chip').forEach(chip => {
+    chip.addEventListener('click', (e) => {
+      const idx = parseInt(e.currentTarget.dataset.idx);
       parties[idx].coalition = !parties[idx].coalition;
       hideResults();
       render();
@@ -1070,7 +1214,7 @@ function render() {
 
   list.querySelectorAll('.remove-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
-      const idx = parseInt(e.target.dataset.idx);
+      const idx = parseInt(e.currentTarget.dataset.idx);
       parties.splice(idx, 1);
       hideResults();
       render();
@@ -1080,13 +1224,24 @@ function render() {
   updateTotal();
 }
 
-document.getElementById('showResultsBtn').addEventListener('click', () => {
-  showResults();
+document.getElementById('showResultsBtn').addEventListener('click', showResults);
+
+// Phone keyboard: "Gotowe" closes it; the dock hides while a field is being edited.
+const partyList = document.getElementById('partyList');
+partyList.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.matches('input')) e.target.blur();
+});
+partyList.addEventListener('focusin', e => {
+  if (e.target.matches('input')) document.body.classList.add('editing');
+});
+partyList.addEventListener('focusout', () => {
+  setTimeout(() => {
+    if (!partyList.contains(document.activeElement)) document.body.classList.remove('editing');
+  }, 50);
 });
 
 document.getElementById('addPartyBtn').addEventListener('click', () => {
-  const newColor = getColor('');
-  parties.push({ name: 'Nowa partia', pct: 0, coalition: false, color: newColor });
+  parties.push({ name: 'Nowa partia', pct: 0, coalition: false, color: getColor('') });
   hideResults();
   render();
   const inputs = document.querySelectorAll('.party-name');
@@ -1094,7 +1249,118 @@ document.getElementById('addPartyBtn').addEventListener('click', () => {
   if (last) { last.focus(); last.select(); }
 });
 
+// ---------- Night chart toggle ----------
+const themeBtn = document.getElementById('themeBtn');
+function isNight() {
+  const t = document.documentElement.dataset.theme;
+  return t ? t === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+function syncThemeBtn() {
+  themeBtn.textContent = isNight() ? 'Dzień' : 'Noc';
+  document.querySelector('meta[name="theme-color"]').content = isNight() ? '#10140f' : '#f3eee3';
+}
+themeBtn.addEventListener('click', () => {
+  const next = isNight() ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem('tc-theme', next); } catch (e) {}
+  syncThemeBtn();
+  drawContours();
+});
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { syncThemeBtn(); drawContours(); });
+syncThemeBtn();
+
+// ---------- Live contour field (drawn once, seeded) ----------
+function drawContours() {
+  const sheet = document.getElementById('contourSheet');
+  const canvas = document.getElementById('contour');
+  const w = sheet.clientWidth, h = sheet.clientHeight;
+  if (!w || !h) return;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+
+  // Seeded value noise. Seed 50031956 = Kraków, 50°03′ N 19°56′ E.
+  let seed = 50031956;
+  const rand = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
+  const G = 64, lat = Array.from({ length: G * G }, rand);
+  const smooth = t => t * t * (3 - 2 * t);
+  const noise = (x, y) => {
+    const xi = Math.floor(x), yi = Math.floor(y), xf = smooth(x - xi), yf = smooth(y - yi);
+    const v = (i, j) => lat[((j & (G - 1)) * G) + (i & (G - 1))];
+    const a = v(xi, yi), b = v(xi + 1, yi), c = v(xi, yi + 1), d = v(xi + 1, yi + 1);
+    return a + (b - a) * xf + (c - a) * yf + (a - b - c + d) * xf * yf;
+  };
+
+  // Kraków station and the Wisła valley curving through it.
+  const sx = w * 0.72, sy = h * 0.42;
+  const river = x => sy + 10 + Math.sin(x / w * 5.2 + 0.8) * h * 0.12;
+  const height = (x, y) => {
+    const u = x / 190, v = y / 190;
+    let z = noise(u, v) * 0.6 + noise(u * 2.1 + 9, v * 2.1 + 3) * 0.28 + noise(u * 4.3 + 17, v * 4.3 + 11) * 0.12;
+    const dv = (y - river(x)) / (h * 0.16);
+    z -= 0.42 * Math.exp(-dv * dv);
+    return z;
+  };
+
+  const step = w > 700 ? 7 : 5;
+  const cols = Math.ceil(w / step) + 1, rows = Math.ceil(h / step) + 1;
+  const field = new Float32Array(cols * rows);
+  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) field[j * cols + i] = height(i * step, j * step);
+
+  const css = getComputedStyle(document.documentElement);
+  const minor = css.getPropertyValue('--contour').trim();
+  const major = css.getPropertyValue('--contour-index').trim();
+  const LEVELS = 22, lo = -0.25, hi = 0.95;
+
+  for (let L = 0; L < LEVELS; L++) {
+    const t = lo + (hi - lo) * L / LEVELS;
+    const isIndex = L % 5 === 0;
+    ctx.beginPath();
+    for (let j = 0; j < rows - 1; j++) {
+      for (let i = 0; i < cols - 1; i++) {
+        const a = field[j * cols + i], b = field[j * cols + i + 1];
+        const c = field[(j + 1) * cols + i + 1], d = field[(j + 1) * cols + i];
+        const idx = (a > t) | ((b > t) << 1) | ((c > t) << 2) | ((d > t) << 3);
+        if (idx === 0 || idx === 15) continue;
+        const x = i * step, y = j * step;
+        const lerp = (p, q) => (t - p) / (q - p);
+        const top = [x + step * lerp(a, b), y];
+        const right = [x + step, y + step * lerp(b, c)];
+        const bottom = [x + step * lerp(d, c), y + step];
+        const left = [x, y + step * lerp(a, d)];
+        const segs = {
+          1: [[left, top]], 2: [[top, right]], 3: [[left, right]], 4: [[right, bottom]],
+          5: [[left, top], [right, bottom]], 6: [[top, bottom]], 7: [[left, bottom]],
+          8: [[bottom, left]], 9: [[bottom, top]], 10: [[top, right], [bottom, left]],
+          11: [[bottom, right]], 12: [[right, left]], 13: [[right, top]], 14: [[top, left]],
+        }[idx];
+        for (const [p, q] of segs) { ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); }
+      }
+    }
+    ctx.strokeStyle = isIndex ? major : minor;
+    ctx.lineWidth = isIndex ? 1.1 : 0.7;
+    ctx.stroke();
+  }
+
+  const station = document.getElementById('station');
+  station.style.left = sx + 'px';
+  station.style.top = sy + 'px';
+  sheet.classList.add('ready');
+}
+
+let lastW = 0;
+window.addEventListener('resize', () => {
+  const w = window.innerWidth;
+  if (w === lastW) return;
+  lastW = w;
+  clearTimeout(drawContours.t);
+  drawContours.t = setTimeout(drawContours, 150);
+});
+
 render();
+requestAnimationFrame(() => { lastW = window.innerWidth; drawContours(); });
 </script>
 </body>
 </html>
